@@ -13,7 +13,7 @@ CC = gcc
 # Иначе clangd ломается.
 # TODO: автоматически преобразовывать их?
 CFLAGS = -I$(THIS_DIR)/include
-LDFLAGS = 
+LDFLAGS = -lm 
 SOURCES = $(shell find $(SOURCE_DIR) -name '*.c')
 
 all: run

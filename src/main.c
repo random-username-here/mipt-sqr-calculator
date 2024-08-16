@@ -1,21 +1,12 @@
 #include <gtk/gtk.h>
 #include "glib.h"
-#include "sqe/helloworld.h"
-
-void btn_clicked (GtkWidget* tgt, gpointer _) {
-  g_print("Кнопку нажали...\n");
-}
+#include "sqe/ui.h"
 
 void activate (GtkApplication* app, gpointer _) {
   GtkWindow* window = GTK_WINDOW(gtk_application_window_new(app));
   gtk_window_set_title(window, "Решатель квадратных уравнений");
   gtk_window_set_default_size(window, 800, 600);
-
-  GtkButton* btn = GTK_BUTTON(gtk_button_new()); // Gtk, зачем всегда возвращать GtkWidget????
-  gtk_button_set_label(btn, "Кнопка");
-  g_signal_connect(GTK_WIDGET(btn), "clicked", G_CALLBACK(btn_clicked), NULL);
-  gtk_window_set_child(window, GTK_WIDGET(btn));
-
+  sqe_build_ui(window);
   gtk_window_present(window);
 }
 
