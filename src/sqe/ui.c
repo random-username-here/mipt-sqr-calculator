@@ -103,12 +103,13 @@ void _input_changed(GtkWidget* entry, gpointer var) {
   // Получаем введёное значение
   GtkEntryBuffer* ent_buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
   const char* text = gtk_entry_buffer_get_text(ent_buf);
+  char* end;
+  double res;
 
   if (*text == 0) // ничего не введено
     goto bad_value;
    
-  char* end;
-  double res = strtod(text, &end);
+  res = strtod(text, &end);
 
   if (*end) // лишние символы, ...
     goto bad_value;
