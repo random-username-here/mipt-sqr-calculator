@@ -1,3 +1,4 @@
+#ifdef GTK_UI
 #include <gtk/gtk.h>
 #include <math.h>
 #include "sqe/ui.h"
@@ -204,3 +205,4 @@ void sqe_build_ui(GtkWindow *window) {
 
   upd_solution();
 }
+#endif
