@@ -21,9 +21,12 @@ void cigue_mem_new_frame(cigue_mem_buffer* buf) {
 }
 
 void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size) {
-  while (buf->alloc_point + size > buf->avail_size)
+  while (buf->alloc_point + size > buf->avail_size) {
     // Нужно больше места!
-    buf->memory = realloc(buf->memory, buf->avail_size * 3 / 2 + 1);
+    size_t new_sz = buf->avail_size * 3 / 2 + 1;
+    buf->memory = realloc(buf->memory, new_sz);
+    buf->avail_size = new_sz;
+  }
   void* handle = buf->memory + buf->alloc_point;
   buf->alloc_point += size;
   return handle;
