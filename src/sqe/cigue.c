@@ -11,6 +11,7 @@ void sqe_cigue_ui() {
 
   cigue_begin_column(gui, 1);
     cigue_label(gui, "Hello world!");
+    cigue_labelf(gui, "Pointer to GUI is %p", gui);
     cigue_begin_row(gui, 3);
       cigue_label(gui, "Second label");
       cigue_begin_border(gui);

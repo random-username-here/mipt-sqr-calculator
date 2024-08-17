@@ -20,12 +20,12 @@ void cigue_external_label(cigue_state* s, const char* text);
 void cigue_label(cigue_state* s, const char* text);
 
 /// Подпись с содержимым, создаваевым printf-подобной функцией.
-/// TODO
-// void cigue_labelf(cigue_state* s, const char* fmt, ...);
+void cigue_labelf(cigue_state* s, const char* fmt, ...)
+  __attribute__ ((format (printf, 2, 3)));
 
 /// То же самое, что `cigue_labelf`, только принимает `va_list`.
-/// TODO
-// void cigue_labelvf(cigue_state* s, const char* fmt, va_list args);
+/// Аттрибута для такого у clangd/gcc нет.
+void cigue_labelvf(cigue_state* s, const char* fmt, va_list args);
 
 /// Начинаем колонку, заканчиваемую `cigue_end()`.
 /// Строка в этом виджете на уровне строки первого элемента.

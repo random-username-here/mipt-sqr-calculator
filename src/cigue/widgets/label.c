@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdarg.h>
 #include "cigue/memory.h"
 #include "cigue/widgets.h"
 #include "cigue/base.h"
@@ -40,4 +41,22 @@ void cigue_external_label(cigue_state* s, const char* text) {
 
 void cigue_label(cigue_state *s, const char *text) {
   cigue_external_label(s, cigue_mem_save_str(s->buf, text));
+}
+
+void cigue_labelvf(cigue_state* s, const char* fmt, va_list args) {
+  va_list clone;
+  va_copy(clone, args);
+  // Получаем длинну и создаём буффер нужной длинны
+  size_t len = vsnprintf(NULL, 0, fmt, clone);
+  char* buf = cigue_mem_alloc(s->buf, len+1);
+  // Печатаем в него
+  vsprintf(buf, fmt, args);
+  // Выводим подпись
+  cigue_external_label(s, buf);
+}
+
+void cigue_labelf(cigue_state *s, const char *fmt, ...) {
+  va_list args;
+  va_start(args, fmt);
+  cigue_labelvf(s, fmt, args);
 }
