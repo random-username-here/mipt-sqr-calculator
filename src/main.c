@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdio.h>
+#include "sqe/cigue.h"
 
 #ifdef GTK_UI
 #include <gtk/gtk.h>
@@ -47,7 +48,7 @@ int main (int argc, char** argv) {
   }
 
   if ((argc > 1 && !strcmp(argv[1], "curses")) || argc == 1) {
-    printf("Curses gui here");
+    sqe_cigue_ui();
     return 0;
   }
   
