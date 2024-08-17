@@ -28,4 +28,10 @@ void cigue_label(cigue_state* s, const char* text);
 // void cigue_labelvf(cigue_state* s, const char* fmt, va_list args);
 
 /// Начинаем колонку, заканчиваемую `cigue_end()`.
+/// Строка в этом виджете на уровне строки первого элемента.
 void cigue_begin_column(cigue_state* s, int spacing);
+
+/// Вырваниваем несколько виджетов в ряд.
+/// Пока что они по вертикали выравниваются по строке.
+/// Потом можно добавить другие опции.
+void cigue_begin_row(cigue_state* s, int spacing);

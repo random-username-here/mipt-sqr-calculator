@@ -6,13 +6,14 @@ typedef struct {
   int spacing;
 } row_data;
 
-static void layout_column(cigue_state* s, cigue_widget* self) {
+static void layout_row(cigue_state* s, cigue_widget* self) {
   row_data* data = (row_data*) self->widget_data;
-  int pos = self->y;
+  int pos = self->x;
   for (cigue_widget* child = self->first_child; child != NULL; child = child->next) {
-    child->x = self->x;
-    child->y = pos;
-    pos += child->height + data->spacing;
+    child->x = pos;
+    // Здесь задано выравнивание по вертикали
+    child->y = self->y + self->above_baseline - child->above_baseline;
+    pos += child->width + data->spacing;
   }
 }
 
@@ -27,19 +28,21 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
     return;
   }
 
-  int h = -data->spacing, w = 0;
+  int w = -data->spacing, above = 0, below = 0;
   for (cigue_widget* child = self->first_child; child != NULL; child = child->next) {
-    h += child->height + data->spacing;
-    if (w < child->width)
-      w = child->width;
+    w += child->width + data->spacing;
+    if (child->above_baseline > above)
+      above = child->above_baseline;
+    if (child->height - child->above_baseline > below)
+      below = child->height - child->above_baseline;
   }
   
-  self->above_baseline = self->first_child->above_baseline;
+  self->above_baseline = above;
   self->width = w;
-  self->height = h;
+  self->height = above + below;
 }
 
-void cigue_begin_column(cigue_state* s, int spacing) {
+void cigue_begin_row(cigue_state* s, int spacing) {
   cigue_widget* wgt = cigue_mem_alloc(s->buf, sizeof(cigue_widget));
 
   row_data* data = cigue_mem_alloc(s->buf, sizeof(row_data));
@@ -47,7 +50,7 @@ void cigue_begin_column(cigue_state* s, int spacing) {
   wgt->widget_data = data;
 
   wgt->compute_dimensions = &compute_size;
-  wgt->layout_and_draw = &layout_column;
+  wgt->layout_and_draw = &layout_row;
 
   cigue_begin(s, wgt); 
 }
