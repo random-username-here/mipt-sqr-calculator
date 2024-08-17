@@ -4,10 +4,10 @@
 
 typedef struct {
   int spacing;
-} row_data;
+} self_data;
 
-static void layout_column(cigue_state* s, cigue_widget* self) {
-  row_data* data = (row_data*) self->widget_data;
+static void layout_and_draw(cigue_state* s, cigue_widget* self) {
+  self_data* data = (self_data*) self->widget_data;
   int pos = self->y;
   for (cigue_widget* child = self->first_child; child != NULL; child = child->next) {
     child->x = self->x;
@@ -17,7 +17,7 @@ static void layout_column(cigue_state* s, cigue_widget* self) {
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {
-  row_data* data = (row_data*) self->widget_data;
+  self_data* data = (self_data*) self->widget_data;
 
   if (self->first_child == NULL) {
     // Пустая колонка
@@ -42,12 +42,12 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 void cigue_begin_column(cigue_state* s, int spacing) {
   cigue_widget* wgt = cigue_mem_alloc(s->buf, sizeof(cigue_widget));
 
-  row_data* data = cigue_mem_alloc(s->buf, sizeof(row_data));
+  self_data* data = cigue_mem_alloc(s->buf, sizeof(self_data));
   data->spacing = spacing; 
   wgt->widget_data = data;
 
   wgt->compute_dimensions = &compute_size;
-  wgt->layout_and_draw = &layout_column;
+  wgt->layout_and_draw = &layout_and_draw;
 
   cigue_begin(s, wgt); 
 }

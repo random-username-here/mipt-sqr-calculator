@@ -35,3 +35,7 @@ void cigue_begin_column(cigue_state* s, int spacing);
 /// Пока что они по вертикали выравниваются по строке.
 /// Потом можно добавить другие опции.
 void cigue_begin_row(cigue_state* s, int spacing);
+
+/// Граница вокруг ОДНОГО виджета.
+/// Если виджет не один, то будет `assert(0)`.
+void cigue_begin_border(cigue_state* s);
