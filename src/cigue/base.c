@@ -35,9 +35,11 @@ static void recurse_render(cigue_state* st, cigue_widget* wgt) {
 }
 
 
-void cigue_render(cigue_state* state) {
+void cigue_render(int x, int y, cigue_state* state) {
   // Сам рендер
   recurse_compute_dims(state, state->_first);
+  state->_first->x = x;
+  state->_first->y = y;
   recurse_render(state, state->_first);
 
   // Подготовка к новому кадру
@@ -46,7 +48,7 @@ void cigue_render(cigue_state* state) {
   cigue_mem_new_frame(state->buf);
 }
 
-void cigue_begin_widget(cigue_state* state, cigue_widget* widget) {
+void cigue_begin(cigue_state* state, cigue_widget* widget) {
   _cigue_widget_stack* stack_item = cigue_mem_alloc(state->buf, sizeof(_cigue_widget_stack));
   if (state->_first == NULL) {
     // Первый виджет
@@ -66,7 +68,7 @@ void cigue_begin_widget(cigue_state* state, cigue_widget* widget) {
   state->_stack_top = stack_item;
 }
 
-void cigue_end_widget(cigue_state* state) {
+void cigue_end(cigue_state* state) {
   assert(state->_stack_top != NULL && "There should be some widget to end");
   _cigue_widget_stack* item = state->_stack_top;
   state->_stack_top = state->_stack_top->parent;

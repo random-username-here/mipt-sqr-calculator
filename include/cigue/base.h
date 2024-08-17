@@ -86,11 +86,11 @@ void cigue_free_state(cigue_state* state);
 
 /// Мы построили дерево виджетов, теперь нужно их отрисовать.
 /// После этого состояние подготавливается к новому кадру.
-void cigue_render(cigue_state* state);
+void cigue_render(int x, int y, cigue_state* state);
 
 /// Начали новый виджет - как открыли HTML-ный тег.
 /// Сам виджет должен быть аллоцирован в буффере.
-void cigue_begin_widget(cigue_state* state, cigue_widget* widget);
+void cigue_begin(cigue_state* state, cigue_widget* widget);
 
 /// Закрыли этот виджет.
-void cigue_end_widget(cigue_state* state);
+void cigue_end(cigue_state* state);
