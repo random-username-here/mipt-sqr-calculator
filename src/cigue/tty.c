@@ -5,10 +5,18 @@
 #include <termios.h>
 #include <unistd.h>
 
+/// Эти переменные "глобальные",
+/// т.к. я не намереваюсь заставлять пользователя передавать
+/// данные в любой вызов cigue_tty_puts.
+///
+/// А если смотреть со стороны всей программы,
+/// эти переменные не глобальные. Они статические,
+/// то есть находятся только в этом небольшом файле.
+///
 static bool atexit_registered = false,
             tty_initted = false;
 static char keybuf[10];
-struct termios original;
+static struct termios original;
 
 void cigue_tty_init() {
   if (tty_initted)
