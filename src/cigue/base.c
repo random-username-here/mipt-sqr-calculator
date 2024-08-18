@@ -5,7 +5,7 @@
 
 cigue_state* cigue_new_state() {
   cigue_state* st = malloc(sizeof(cigue_state));
-  st->buf = cigue_mem_new_buffer(1024);
+  st->buf = cigue_mem_new_buffer(1024*64);
   st->_first = NULL;
   st->_stack_top = NULL;
   return st;

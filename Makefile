@@ -12,7 +12,7 @@ CC = gcc
 # Использовать здесь АБСОЛЮТНЫЕ пути, без пробелов.
 # Иначе clangd ломается.
 # TODO: автоматически преобразовывать их?
-CFLAGS = -I$(THIS_DIR)/include -DGTK_UI
+CFLAGS = -I$(THIS_DIR)/include -DGTK_UI -g
 LDFLAGS = -lm 
 SOURCES = $(shell find $(SOURCE_DIR) -name '*.c')
 

@@ -24,8 +24,16 @@ void cigue_external_label(cigue_state* s, const char* text) {
 
   // https://stackoverflow.com/questions/32936646/getting-the-string-length-on-utf-8-in-c
   wgt->width = 0;
-  for (const char* c = text; *c != '\0'; ++c)
-    wgt->width += (*c & 0xC0) != 0x80 ? 1 : 0;
+  int in_esc = 0;
+  for (const char* c = text; *c != '\0'; ++c) {
+    // Не считаем коды для форматирования
+    if (*c == '\x1b') 
+      in_esc = 1;
+    else if (in_esc && *c == 'm')
+      in_esc = 0;
+    else if (!in_esc)
+      wgt->width += (*c & 0xC0) != 0x80 ? 1 : 0;
+  }
 
   wgt->height = 1;
   wgt->above_baseline = 1;

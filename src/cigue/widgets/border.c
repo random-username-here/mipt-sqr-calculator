@@ -14,6 +14,8 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
   self->first_child->x = self->x + 1;
   self->first_child->y = self->y + 1;
 
+  cigue_tty_puts_anywhere("\x1b[90m"); // серый цвет
+
   // Ненавижу писать эту часть...
   cigue_tty_puts(self->x, self->y, "┌");
   cigue_tty_puts(self->x + self->width - 1, self->y, "┐");
@@ -29,6 +31,8 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
     cigue_tty_puts(self->x, self->y + i, "│");
     cigue_tty_puts(self->x + self->width - 1, self->y + i, "│");
   }
+
+  cigue_tty_puts_anywhere("\x1b[0m");
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {

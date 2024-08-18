@@ -21,13 +21,19 @@ void cigue_mem_new_frame(cigue_mem_buffer* buf) {
 }
 
 void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size) {
-  while (buf->alloc_point + size > buf->avail_size) {
+  // При реаллокации буффер перезжает вместе с указателями
+  // Нужны "умные указатели", не ломающиеся после переезда.
+  // Или какая-то ещё муть.
+  // FIXME FIXME FIXME!
+  assert(buf->alloc_point + size < buf->avail_size && "Buffer must have enough memory!");
+  /*while (buf->alloc_point + size > buf->avail_size) {
     // Нужно больше места!
     size_t new_sz = buf->avail_size * 3 / 2 + 1;
     buf->memory = realloc(buf->memory, new_sz);
     buf->avail_size = new_sz;
-  }
+  }*/
   void* handle = buf->memory + buf->alloc_point;
+  memset(handle, 0, size);
   buf->alloc_point += size;
   return handle;
 }
