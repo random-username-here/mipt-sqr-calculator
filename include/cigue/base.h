@@ -94,3 +94,29 @@ void cigue_begin(cigue_state* state, cigue_widget* widget);
 
 /// Закрыли этот виджет.
 void cigue_end(cigue_state* state);
+
+#define __concat2(a, b) a##b
+#define __concat(a, b) __concat2(a, b)
+
+/// Делает из cigue_..._begin цикл, автоматически закрывающий данный виджет.
+/// То есть такое:
+///
+/// ```c
+/// cigue_xxx_begin(gui, ...);
+/// ...
+/// cigue_end(gui);
+/// ```
+///
+/// Эквивалентно такому:
+///
+/// ```c
+/// #define cigue_xxx(...) __cigue_autowidget(cigue_xxx_begin, __VA_ARGS__)
+///
+/// cigue_xxx(...) {
+///   ...
+/// }
+/// ```
+#define __cigue_autowidget(begin_fn, gui, ...)\
+  for (int __concat(__cigue_autowgt_, __LINE__) = (begin_fn(gui __VA_OPT__(,) __VA_ARGS__), 0);\
+       __concat(__cigue_autowgt_, __LINE__) != 1;\
+       ++__concat(__cigue_autowgt_, __LINE__), cigue_end(gui))

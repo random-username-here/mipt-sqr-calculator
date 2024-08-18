@@ -31,10 +31,14 @@ void cigue_labelvf(cigue_state* s, const char* fmt, va_list args);
 /// Строка в этом виджете на уровне строки первого элемента.
 void cigue_begin_column(cigue_state* s, int spacing);
 
+#define cigue_column(...) __cigue_autowidget(cigue_begin_column, __VA_ARGS__)
+
 /// Вырваниваем несколько виджетов в ряд.
 /// Пока что они по вертикали выравниваются по строке.
 /// Потом можно добавить другие опции.
 void cigue_begin_row(cigue_state* s, int spacing);
+
+#define cigue_row(...) __cigue_autowidget(cigue_begin_row, __VA_ARGS__)
 
 /// Граница вокруг ОДНОГО виджета.
 /// Если виджет не один, то будет `assert(0)`.
