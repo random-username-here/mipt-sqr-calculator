@@ -9,12 +9,15 @@
 typedef struct {
 } self_data;
 
+#define ESC_GRAY "\x1b[90m"
+#define ESC_RESET "\x1b[0m"
+
 static void layout_and_draw(cigue_state* s, cigue_widget* self) {
   //self_data* data = (self_data*) self->widget_data;
   self->first_child->x = self->x + 1;
   self->first_child->y = self->y + 1;
 
-  cigue_tty_puts_anywhere("\x1b[90m"); // серый цвет
+  cigue_tty_puts_anywhere(ESC_GRAY); // серый цвет
 
   // Ненавижу писать эту часть...
   cigue_tty_puts(self->x, self->y, "┌");
@@ -32,7 +35,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
     cigue_tty_puts(self->x + self->width - 1, self->y + i, "│");
   }
 
-  cigue_tty_puts_anywhere("\x1b[0m");
+  cigue_tty_puts_anywhere(ESC_RESET);
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {
