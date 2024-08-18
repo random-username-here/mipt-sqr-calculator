@@ -40,9 +40,9 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 }
 
 void cigue_begin_column(cigue_state* s, int spacing) {
-  cigue_widget* wgt = cigue_mem_alloc(s->buf, sizeof(cigue_widget));
+  cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
+  self_data* data = cigue_mem_new(s->buf, self_data);
 
-  self_data* data = cigue_mem_alloc(s->buf, sizeof(self_data));
   data->spacing = spacing; 
   wgt->widget_data = data;
 

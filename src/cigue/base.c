@@ -4,7 +4,7 @@
 #include <assert.h>
 
 cigue_state* cigue_new_state() {
-  cigue_state* st = malloc(sizeof(cigue_state));
+  cigue_state* st = (cigue_state*) malloc(sizeof(cigue_state));
   st->buf = cigue_mem_new_buffer(1024*64);
   st->_first = NULL;
   st->_stack_top = NULL;
@@ -49,7 +49,7 @@ void cigue_render(int x, int y, cigue_state* state) {
 }
 
 void cigue_begin(cigue_state* state, cigue_widget* widget) {
-  _cigue_widget_stack* stack_item = cigue_mem_alloc(state->buf, sizeof(_cigue_widget_stack));
+  _cigue_widget_stack* stack_item = cigue_mem_new(state->buf, _cigue_widget_stack);
   if (state->_first == NULL) {
     // Первый виджет
     state->_first = widget;

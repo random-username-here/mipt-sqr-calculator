@@ -2,13 +2,14 @@
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdint.h>
 
 cigue_mem_buffer* cigue_mem_new_buffer(size_t initial_size) {
-  cigue_mem_buffer* new = malloc(sizeof(cigue_mem_buffer));
-  new->memory = malloc(initial_size);
-  new->avail_size = initial_size;
-  new->alloc_point = 0;
-  return new;
+  cigue_mem_buffer* new_buf = (cigue_mem_buffer*) malloc(sizeof(cigue_mem_buffer));
+  new_buf->memory = malloc(initial_size);
+  new_buf->avail_size = initial_size;
+  new_buf->alloc_point = 0;
+  return new_buf;
 }
 
 void cigue_mem_free_buffer(cigue_mem_buffer* buf) {
@@ -38,6 +39,12 @@ void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size) {
   return handle;
 }
 
+void* cigue_mem_alloc_aligned(cigue_mem_buffer* buf, size_t size, size_t align) {
+  buf->alloc_point += (align - (uintptr_t) (buf->memory + buf->alloc_point) % align) % align;
+  void* ptr = cigue_mem_alloc(buf, size);
+  return ptr;
+}
+
 void* cigue_mem_save(cigue_mem_buffer* buf, const void* object, size_t size) {
   void* ptr = cigue_mem_alloc(buf, size);
   memcpy(ptr, object, size);
@@ -45,5 +52,5 @@ void* cigue_mem_save(cigue_mem_buffer* buf, const void* object, size_t size) {
 }
 
 char* cigue_mem_save_str(cigue_mem_buffer* buf, const char* str) {
-  return cigue_mem_save(buf, str, strlen(str) + 1);
+  return (char*) cigue_mem_save(buf, str, strlen(str) + 1);
 }

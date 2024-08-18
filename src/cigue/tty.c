@@ -24,11 +24,11 @@ void cigue_tty_init() {
   cigue_tty_clear();
 
   tcgetattr(STDIN_FILENO, &original);
-  struct termios new = original;
-  new.c_lflag &= ~(ECHO | ICANON);
-  new.c_cc[VMIN] = 0;
-  new.c_cc[VTIME] = 0;
-  tcsetattr(STDIN_FILENO, TCSANOW, &new);
+  struct termios new_opts = original;
+  new_opts.c_lflag &= ~(ECHO | ICANON);
+  new_opts.c_cc[VMIN] = 0;
+  new_opts.c_cc[VTIME] = 0;
+  tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
 
   tty_initted = true;
 }

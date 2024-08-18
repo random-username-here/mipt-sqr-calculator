@@ -10,7 +10,7 @@ typedef struct {
 } self_data;
 
 static void layout_and_draw(cigue_state* s, cigue_widget* self) {
-  self_data* data = (self_data*) self->widget_data;
+  //self_data* data = (self_data*) self->widget_data;
   self->first_child->x = self->x + 1;
   self->first_child->y = self->y + 1;
 
@@ -36,7 +36,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {
-  self_data* data = (self_data*) self->widget_data;
+  //self_data* data = (self_data*) self->widget_data;
 
   assert(self->first_child && "cigue_border() must have a child");
   assert(self->first_child->next == NULL && "cigue_border() must have exactly one child");
@@ -47,9 +47,9 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 }
 
 void cigue_begin_border(cigue_state* s) {
-  cigue_widget* wgt = cigue_mem_alloc(s->buf, sizeof(cigue_widget));
+  cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
+  self_data* data = cigue_mem_new(s->buf, self_data);
 
-  self_data* data = cigue_mem_alloc(s->buf, sizeof(self_data));
   wgt->widget_data = data;
 
   wgt->compute_dimensions = &compute_size;

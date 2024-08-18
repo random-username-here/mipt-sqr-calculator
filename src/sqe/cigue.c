@@ -16,7 +16,7 @@ static double to_double(const char* buf) {
   else {
     char* end;
     double res = strtod(buf, &end); 
-    if (*end || isnan(res) || res == HUGE_VAL)
+    if (*end || isnan(res))
       return NAN;
     return res;
   }}
@@ -189,12 +189,14 @@ void sqe_cigue_ui() {
   cigue_state* gui = cigue_new_state();
   cigue_tty_init();
 
-  char* key = "\1";
+
+  char _s[] = "\1";
+  char* key = _s;
   double a, b, c;
   char a_buf[21] = "1", b_buf[21] = "4", c_buf[21] = "3";
   int selected = 1;
 
-  while (strcmp(key, "q")) {
+  while (!key || strcmp(key, "q")) {
     if (*key == '\0') {
       key = cigue_tty_nextkey();
       continue;
@@ -228,4 +230,5 @@ void sqe_cigue_ui() {
     cigue_render(0, 0, gui);
     key = cigue_tty_nextkey();
   }
+  cigue_free_state(gui);
 }

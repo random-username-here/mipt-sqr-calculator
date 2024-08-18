@@ -10,6 +10,7 @@
 
 #pragma once
 #include <stddef.h>
+#include <stdalign.h>
 
 /// Сама структура буффера.
 typedef struct {
@@ -38,10 +39,15 @@ void cigue_mem_new_frame(cigue_mem_buffer* buf);
 /// Аллоцируем `size` байт из буффера
 void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size);
 
+/// Аллоцируем `size` байт, выровненные как сказано.
+/// Интересно, какой архитектуре это нужно?
+void* cigue_mem_alloc_aligned(cigue_mem_buffer* buf, size_t size, size_t align);
+
 /// Сохраняет объект заданного размера в буффер.
 void* cigue_mem_save(cigue_mem_buffer* buf, const void* object, size_t size);
 
 /// Сохраняет строку, заканчивающуюся на `\0` в буффер.
 char* cigue_mem_save_str(cigue_mem_buffer* buf, const char* str);
 
-
+/// Создаём объект заданного типа, выровнянный как нужно.
+#define cigue_mem_new(buf, type) ((type*) cigue_mem_alloc_aligned(buf, sizeof(type), alignof(type)))
