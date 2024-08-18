@@ -33,14 +33,14 @@ void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size) {
     buf->memory = realloc(buf->memory, new_sz);
     buf->avail_size = new_sz;
   }*/
-  void* handle = buf->memory + buf->alloc_point;
+  void* handle = (void*)((char*)buf->memory + buf->alloc_point);
   memset(handle, 0, size);
   buf->alloc_point += size;
   return handle;
 }
 
 void* cigue_mem_alloc_aligned(cigue_mem_buffer* buf, size_t size, size_t align) {
-  buf->alloc_point += (align - (uintptr_t) (buf->memory + buf->alloc_point) % align) % align;
+  buf->alloc_point += (align - (uintptr_t) ((char*) buf->memory + buf->alloc_point) % align) % align;
   void* ptr = cigue_mem_alloc(buf, size);
   return ptr;
 }
