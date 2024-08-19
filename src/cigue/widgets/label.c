@@ -1,5 +1,6 @@
 #include <string.h>
 #include <stdarg.h>
+#include <assert.h>
 #include "cigue/memory.h"
 #include "cigue/widgets.h"
 #include "cigue/base.h"
@@ -16,6 +17,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* label) {
 }
 
 void cigue_external_label(cigue_state* s, const char* text) {
+  assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
 

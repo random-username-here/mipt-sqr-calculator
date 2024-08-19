@@ -1,6 +1,7 @@
 #include "cigue/memory.h"
 #include "cigue/widgets.h"
 #include "cigue/base.h"
+#include <assert.h>
 
 typedef struct {
   int spacing;
@@ -40,6 +41,7 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 }
 
 void cigue_begin_column(cigue_state* s, int spacing) {
+  assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
 

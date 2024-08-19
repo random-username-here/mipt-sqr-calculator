@@ -1,9 +1,10 @@
-#include "cigue/tty.h"
+#include <assert.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <termios.h>
 #include <unistd.h>
+#include "cigue/tty.h"
 
 /// Эти переменные "глобальные",
 /// т.к. я не намереваюсь заставлять пользователя передавать
@@ -51,11 +52,13 @@ void cigue_tty_deinit() {
 }
 
 void cigue_tty_puts_anywhere(const char* text) {
+  assert(text && "Text to write must be != NULL");
   printf("%s", text);
   fflush(stdout);
-
 }
+
 void cigue_tty_puts(int x, int y, const char* text) {
+  assert(text && "Text to write must be != NULL");
   printf("\x1b[%d;%dH%s", y+1, x+1, text);
   fflush(stdout);
 }

@@ -42,6 +42,7 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 }
 
 void cigue_math_begin_sqrt(cigue_state *s) {
+  assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
 

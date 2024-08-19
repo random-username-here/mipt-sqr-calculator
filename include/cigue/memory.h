@@ -49,5 +49,9 @@ void* cigue_mem_save(cigue_mem_buffer* buf, const void* object, size_t size);
 /// Сохраняет строку, заканчивающуюся на `\0` в буффер.
 char* cigue_mem_save_str(cigue_mem_buffer* buf, const char* str);
 
+/// Проверяет, что данный указатель находится в
+/// данном буффуре. Если нет - роняет программу.
+void cigue_assert_buf_memory(cigue_mem_buffer* buf, const void* mem);
+
 /// Создаём объект заданного типа, выровнянный как нужно.
 #define cigue_mem_new(buf, type) ((type*) cigue_mem_alloc_aligned(buf, sizeof(type), alignof(type)))

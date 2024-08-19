@@ -4,7 +4,9 @@
 #include <assert.h>
 
 cigue_state* cigue_new_state() {
-  cigue_state* st = (cigue_state*) malloc(sizeof(cigue_state));
+  cigue_state* st = (cigue_state*) calloc(1, sizeof(cigue_state));
+  assert (st != NULL && "State must be created"); // NOTE: maybe return NULL instead?
+
   st->buf = cigue_mem_new_buffer(1024*64);
   st->_first = NULL;
   st->_stack_top = NULL;
@@ -12,6 +14,7 @@ cigue_state* cigue_new_state() {
 }
 
 void cigue_free_state(cigue_state* state) {
+  assert(state && "You cannot free state = NULL");
   cigue_mem_free_buffer(state->buf);
   free(state);
 }
@@ -36,6 +39,7 @@ static void recurse_render(cigue_state* st, cigue_widget* wgt) {
 
 
 void cigue_render(int x, int y, cigue_state* state) {
+  assert(state && "You cannot render state = NULL");
   // Сам рендер
   recurse_compute_dims(state, state->_first);
   state->_first->x = x;
@@ -49,6 +53,8 @@ void cigue_render(int x, int y, cigue_state* state) {
 }
 
 void cigue_begin(cigue_state* state, cigue_widget* widget) {
+  assert(state && "Cannot begin widget in state = NULL");
+  cigue_assert_buf_memory(state->buf, widget);
   _cigue_widget_stack* stack_item = cigue_mem_new(state->buf, _cigue_widget_stack);
   if (state->_first == NULL) {
     // Первый виджет
@@ -69,6 +75,7 @@ void cigue_begin(cigue_state* state, cigue_widget* widget) {
 }
 
 void cigue_end(cigue_state* state) {
+  assert(state && "Cannot end widget in state = NULL");
   assert(state->_stack_top != NULL && "There should be some widget to end");
   _cigue_widget_stack* item = state->_stack_top;
   state->_stack_top = state->_stack_top->parent;
