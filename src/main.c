@@ -6,17 +6,15 @@
   #include "sqe/ui.h"
 #endif
 
-static void print_help() {
-  printf("sqe - Square equation solver\n\n");
-  printf("Variants:\n");
-  printf("  gtk - Graphical version, based on GTK4. Has its own help message.\n");
-  #ifndef GTK_UI
-    printf("        ! This version was compiled without -DGTK_UI, so this option does not work.\n");
-  #endif
-  printf("  cigue Cigue-based version, runs by default.\n");
-}
+void print_help();
+
+enum exit_statuses {
+  EXIT_GTK_NOT_COMPILED_WITH = 1,
+  EXIT_WRONG_OPTS = 2
+};
 
 int main (int argc, char** argv) {
+
   if (argc > 1 && !strcmp(argv[1], "--help")) {
     print_help();
     return EXIT_SUCCESS;
@@ -29,7 +27,7 @@ int main (int argc, char** argv) {
       return gtk_main(argc-1, argv+1);
     #else
       printf("This executable was compiled without -DGTK_UI, so this won't work.");
-      return EXIT_FAILURE;
+      return EXIT_GTK_NOT_COMPILED_WITH;
     #endif
   }
 
@@ -39,5 +37,18 @@ int main (int argc, char** argv) {
   }
   
   printf("Wrong options, consider reading --help\n");
-  return EXIT_FAILURE;
+  return EXIT_WRONG_OPTS;
+}
+
+void print_help() {
+
+  printf("sqe - Square equation solver\n\n");
+  printf("Variants:\n");
+  printf("  gtk - Graphical version, based on GTK4. Has its own help message.\n");
+  
+  #ifndef GTK_UI
+    printf("        ! This version was compiled without -DGTK_UI, so this option does not work.\n");
+  #endif
+
+  printf("  cigue Cigue-based version, runs by default.\n");
 }

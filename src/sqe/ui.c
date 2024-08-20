@@ -49,6 +49,7 @@ const double ZERO_EPS = 0.000001;
 /// Решаем уравнение, попутно обновляя подписи.
 void upd_solution() {
 
+
   // Не перерешиваем в случае неправильного ввода.
   if (isnan(a_val) || isnan(b_val) || isnan(c_val)) return;
 
@@ -101,6 +102,7 @@ void upd_solution() {
 
 /// Обработчик изменения значения поля ввода a, b или с.
 void _input_changed(GtkWidget* entry, gpointer var) {
+
   // Получаем введёное значение
   GtkEntryBuffer* ent_buf = gtk_entry_get_buffer(GTK_ENTRY(entry));
   const char* text = gtk_entry_buffer_get_text(ent_buf);
@@ -131,6 +133,7 @@ bad_value:
 
 /// Делаем переданный виджет выровненным по левой границе контейнера
 GtkWidget* left_aligned(GtkWidget* wgt) {
+
   gtk_widget_set_halign(wgt, GTK_ALIGN_START);
   return wgt;
 }
@@ -138,6 +141,7 @@ GtkWidget* left_aligned(GtkWidget* wgt) {
 /// Создаём новую подпись наподобие gtk_label_new,
 /// только с форматированным текстом
 GtkWidget* markup_label(const char* text) {
+
   GtkWidget* lbl = gtk_label_new("");
   gtk_label_set_markup(GTK_LABEL(lbl), text);
   return lbl;
@@ -145,10 +149,12 @@ GtkWidget* markup_label(const char* text) {
 
 /// Устанавливаем значение поля ввода.
 void set_entry_text(GtkEntry* entry, const char* text) {
+
   gtk_entry_buffer_set_text(gtk_entry_get_buffer(entry), text, strlen(text));
 }
 
 void sqe_build_ui(GtkWindow *window) {
+
   // Создаём буффер для upd_label_fmt()
   buf = g_string_new("");
 
@@ -207,6 +213,7 @@ void sqe_build_ui(GtkWindow *window) {
 }
 
 void activate (GtkApplication* app, gpointer _) {
+
   GtkWindow* window = GTK_WINDOW(gtk_application_window_new(app));
   gtk_window_set_title(window, "Решатель квадратных уравнений");
   gtk_window_set_default_size(window, 800, 600);
@@ -216,6 +223,7 @@ void activate (GtkApplication* app, gpointer _) {
 
 
 int gtk_main (int argc, char **argv) {
+
   GtkApplication* app = gtk_application_new("org.i-s-d.sqr-equation", G_APPLICATION_DEFAULT_FLAGS);
   g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
   int rc = g_application_run(G_APPLICATION(app), argc, argv);

@@ -12,11 +12,13 @@ typedef struct {
 } self_data;
 
 static void layout_and_draw(cigue_state* s, cigue_widget* label) {
+
   self_data* data = (self_data*) label->widget_data;
   cigue_tty_puts(label->x, label->y, data->str);
 }
 
 void cigue_external_label(cigue_state* s, const char* text) {
+
   assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
@@ -50,10 +52,12 @@ void cigue_external_label(cigue_state* s, const char* text) {
 // Дальше разные обёртки.
 
 void cigue_label(cigue_state *s, const char *text) {
+
   cigue_external_label(s, cigue_mem_save_str(s->buf, text));
 }
 
 void cigue_labelvf(cigue_state* s, const char* fmt, va_list args) {
+
   va_list clone;
   va_copy(clone, args);
   // Получаем длинну и создаём буффер нужной длинны
@@ -66,6 +70,7 @@ void cigue_labelvf(cigue_state* s, const char* fmt, va_list args) {
 }
 
 void cigue_labelf(cigue_state *s, const char *fmt, ...) {
+
   va_list args;
   va_start(args, fmt);
   cigue_labelvf(s, fmt, args);

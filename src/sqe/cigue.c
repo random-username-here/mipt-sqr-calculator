@@ -10,23 +10,38 @@
 #include "cigue/widgets.h"
 #include "sqe/cigue.h"
 
-const char K_BACKSPACE[] = "\x7f";
-const char K_LEFT[] = "\x1b[D";
-const char K_RIGHT[] = "\x1b[C";
+#define K_BACKSPACE "\x7f"
+#define K_LEFT      "\x1b[D"
+#define K_RIGHT     "\x1b[C"
 
-static double to_double(const char* buf) {
+double to_double(const char* buf);
+
+void logo(cigue_state* gui);
+
+void handle_focus(int* selected, int num_inputs, const char* key);
+
+double text_input(cigue_state* gui, char* buf, size_t maxlen,
+                         bool focused, char* keypress);
+
+////////////////////////////////////////////////////////////
+
+double to_double(const char* buf) {
+  
+  assert(buf);
+
   if (*buf == 0) // ничего не введено
     return NAN;
   else {
-    char* end;
+    char* end = NULL;
     double res = strtod(buf, &end); 
-    if (*end || isnan(res))
+    if (!end || *end || isnan(res))
       return NAN;
     return res;
   }
 }
 
-static void logo(cigue_state* gui) {
+void logo(cigue_state* gui) {
+
   cigue_column(gui, 0) {
     cigue_label(gui, "┌─┐┌─┐ ┬─┐  ┌─┐┌─┐ ┬ ┬┌─┐┌┬┐┬┌─┐┌┐┌┌─┐");
     cigue_label(gui, "└─┐│─┼┐├┬┘  ├┤ │─┼┐│ │├─┤ │ ││ ││││└─┐");
@@ -37,8 +52,12 @@ static void logo(cigue_state* gui) {
   }
 }
 
-static double text_input(cigue_state* gui, char* buf, size_t maxlen,
+double text_input(cigue_state* gui, char* buf, size_t maxlen,
                          bool focused, char* keypress) {
+
+  assert(gui);
+  assert(buf);
+  assert(keypress);
 
   // Обрабатываем ввод текста
   if (focused) {
@@ -65,6 +84,7 @@ static double text_input(cigue_state* gui, char* buf, size_t maxlen,
 /// Увелчиваем или уменьшаем значение в пределах
 /// `[0; num_inputs)` клавишами `K_LEFT`/`K_RIGHT`.
 void handle_focus(int* selected, int num_inputs, const char* key) {
+
   assert(selected);
   assert(key);
 

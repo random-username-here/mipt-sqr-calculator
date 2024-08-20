@@ -20,6 +20,7 @@ static char keybuf[10];
 static struct termios original;
 
 void cigue_tty_init() {
+
   if (tty_initted)
     return;
 
@@ -43,6 +44,7 @@ void cigue_tty_init() {
 }
 
 void cigue_tty_deinit() {
+
   if (!tty_initted)
     return;
   tty_initted = false;
@@ -52,23 +54,27 @@ void cigue_tty_deinit() {
 }
 
 void cigue_tty_puts_anywhere(const char* text) {
+
   assert(text && "Text to write must be != NULL");
   printf("%s", text);
   fflush(stdout);
 }
 
 void cigue_tty_puts(int x, int y, const char* text) {
+
   assert(text && "Text to write must be != NULL");
   printf("\x1b[%d;%dH%s", y+1, x+1, text);
   fflush(stdout);
 }
 
 void cigue_tty_clear() {
+
   printf("\x1b[2J");
   fflush(stdout);
 }
 
 char* cigue_tty_nextkey() {
+
   int kl = 0;
   keybuf[kl++] = cigue_tty_getch();
   if (keybuf[0] == '\x1b') { // escape-коды
@@ -81,6 +87,7 @@ char* cigue_tty_nextkey() {
 }
 
 char cigue_tty_getch() {
+
   char res = 0;
   read(STDIN_FILENO, &res, 1);
   return res;

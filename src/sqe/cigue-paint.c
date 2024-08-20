@@ -5,17 +5,40 @@
 #include "cigue/math-widgets.h"
 #include "sqe/solve.h"
 
-static void paint_const_any_solution(cigue_state* gui, const solve_result* res) {
+void paint_const_any_solution(cigue_state* gui, const solve_result* res);
+
+void paint_const_none_solution(cigue_state* gui, const solve_result* res);
+
+void paint_linear_solution(cigue_state* gui, const solve_result* res);
+
+void paint_D_calc(cigue_state* gui, const solve_result* res);
+
+void paint_sqr_none_solution(cigue_state* gui, const solve_result* res);
+
+void paint_sqr_one_solution(cigue_state* gui, const solve_result* res);
+
+void paint_sqr_two_solution(cigue_state* gui, const solve_result* res);
+
+void _sqr_twosolution_formula(cigue_state* gui);
+
+void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_result* res);
+
+////////////////////////////////////////////////////////////
+
+void paint_const_any_solution(cigue_state* gui, const solve_result* res) {
+
   cigue_label(gui, "0 = 0");
   cigue_label(gui, "⇒ " ESC_BOLD "x любое" ESC_RESET);
 }
 
-static void paint_const_none_solution(cigue_state* gui, const solve_result* res) {
+void paint_const_none_solution(cigue_state* gui, const solve_result* res) {
+
   cigue_labelf(gui, "%lf = 0", res->c);
   cigue_label(gui, "такое невозможно, так что " ESC_BOLD "x = ∅" ESC_RESET);
 }
 
-static void paint_linear_solution(cigue_state* gui, const solve_result* res) {
+void paint_linear_solution(cigue_state* gui, const solve_result* res) {
+
   cigue_row(gui, 0) {
     cigue_label(gui, "x = - ");
     cigue_math_frac(gui) {
@@ -31,7 +54,8 @@ static void paint_linear_solution(cigue_state* gui, const solve_result* res) {
   }
 }
 
-static void paint_D_calc(cigue_state* gui, const solve_result* res) {
+void paint_D_calc(cigue_state* gui, const solve_result* res) {
+
   cigue_row(gui, 0) {
     cigue_label(gui, "D");
     cigue_column(gui, 0) {
@@ -42,13 +66,15 @@ static void paint_D_calc(cigue_state* gui, const solve_result* res) {
   }
 }
 
-static void paint_sqr_none_solution(cigue_state* gui, const solve_result* res) {
+void paint_sqr_none_solution(cigue_state* gui, const solve_result* res) {
+
   paint_D_calc(gui, res);
   cigue_label(gui, "D < 0 ⇒ решений нет");
   cigue_label(gui, ESC_BOLD "x = ∅" ESC_RESET);
 }
 
-static void paint_sqr_one_solution(cigue_state* gui, const solve_result* res) {
+void paint_sqr_one_solution(cigue_state* gui, const solve_result* res) {
+
   paint_D_calc(gui, res);
   cigue_label(gui, "D = 0 ⇒ решение одно");
 
@@ -67,7 +93,8 @@ static void paint_sqr_one_solution(cigue_state* gui, const solve_result* res) {
   }
 }
 
-static void _sqr_twosolution_formula(cigue_state* gui) {
+void _sqr_twosolution_formula(cigue_state* gui) {
+
   cigue_row(gui, 0) {
     cigue_label(gui, " = ");
     cigue_math_frac(gui) {
@@ -82,7 +109,8 @@ static void _sqr_twosolution_formula(cigue_state* gui) {
   }
 }
 
-static void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_result* res) {
+void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_result* res) {
+
   cigue_row(gui, 0) {
     cigue_label(gui, " = ");
     cigue_math_frac(gui) {
@@ -97,7 +125,8 @@ static void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_r
   }
 }
 
-static void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
+void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
+
   paint_D_calc(gui, res);
   cigue_label(gui, "D > 0 ⇒ решения два");
 
@@ -118,6 +147,7 @@ static void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
 }
 
 void sqe_cigue_paint_solution(cigue_state* gui, const solve_result *res) {
+
   switch(res->type) {
     case RESULT_CONST_ANY:  paint_const_any_solution(gui, res);  break;
     case RESULT_CONST_NONE: paint_const_none_solution(gui, res); break;

@@ -7,6 +7,7 @@ typedef struct {
 } self_data;
 
 static void layout_and_draw(cigue_state* s, cigue_widget* self) {
+
   //self_data* data = (self_data*) self->widget_data;
 
   self->first_child->x = self->x + self->width/2 - self->first_child->width/2;
@@ -19,10 +20,12 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 }
 
 static inline int max(int a, int b) {
+
   return a > b ? a : b;
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {
+
   //self_data* data = (self_data*) self->widget_data;
 
   assert(self->first_child && "fraction requires numerator");
@@ -35,6 +38,7 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 }
 
 void cigue_math_begin_frac(cigue_state* s) {
+
   assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
