@@ -42,10 +42,11 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 static void compute_size(cigue_state* s, cigue_widget* self) {
 
   assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
-  //self_data* data = (self_data*) self->widget_data;
-
   assert(self->first_child && "cigue_border() must have a child");
   assert(self->first_child->next == NULL && "cigue_border() must have exactly one child");
+
+
+  //self_data* data = (self_data*) self->widget_data;
 
   self->width = self->first_child->width + 2;
   self->height = self->first_child->height + 2;

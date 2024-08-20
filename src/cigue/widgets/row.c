@@ -11,6 +11,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 
   self_data* data = (self_data*) self->widget_data;
   int pos = self->x;
+
   for (cigue_widget* child = self->first_child; child != NULL; child = child->next) {
     child->x = pos;
     // Здесь задано выравнивание по вертикали
@@ -48,6 +49,7 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 void cigue_begin_row(cigue_state* s, int spacing) {
 
   assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
+  
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
 

@@ -20,6 +20,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* label) {
 void cigue_external_label(cigue_state* s, const char* text) {
 
   assert(s != NULL && "Widget must be created in GUI. You passed gui = NULL.");
+
   cigue_widget* wgt = cigue_mem_new(s->buf, cigue_widget);
   self_data* data = cigue_mem_new(s->buf, self_data);
 
@@ -60,11 +61,14 @@ void cigue_labelvf(cigue_state* s, const char* fmt, va_list args) {
 
   va_list clone;
   va_copy(clone, args);
+
   // Получаем длинну и создаём буффер нужной длинны
   size_t len = (size_t) vsnprintf(NULL, 0, fmt, clone);
   char* buf = (char*) cigue_mem_alloc(s->buf, len+1);
+  
   // Печатаем в него
   vsprintf(buf, fmt, args);
+  
   // Выводим подпись
   cigue_external_label(s, buf);
 }

@@ -34,10 +34,12 @@ void cigue_tty_init() {
   cigue_tty_clear();
 
   tcgetattr(STDIN_FILENO, &original);
+  
   struct termios new_opts = original;
   new_opts.c_lflag &= ~(ECHO | ICANON);
   new_opts.c_cc[VMIN] = 0;
   new_opts.c_cc[VTIME] = 0;
+  
   tcsetattr(STDIN_FILENO, TCSANOW, &new_opts);
 
   tty_initted = true;
@@ -48,14 +50,17 @@ void cigue_tty_deinit() {
   if (!tty_initted)
     return;
   tty_initted = false;
+  
   printf("\x1b[?1049l"); // no alt mode
   printf("\x1b[?25h"); // cursor
+  
   tcsetattr(STDIN_FILENO, TCSANOW, &original); // возвращаем терминал в изначальное состояние
 }
 
 void cigue_tty_puts_anywhere(const char* text) {
 
   assert(text && "Text to write must be != NULL");
+  
   printf("%s", text);
   fflush(stdout);
 }
@@ -63,6 +68,7 @@ void cigue_tty_puts_anywhere(const char* text) {
 void cigue_tty_puts(int x, int y, const char* text) {
 
   assert(text && "Text to write must be != NULL");
+  
   printf("\x1b[%d;%dH%s", y+1, x+1, text);
   fflush(stdout);
 }
@@ -77,12 +83,15 @@ char* cigue_tty_nextkey() {
 
   int kl = 0;
   keybuf[kl++] = cigue_tty_getch();
+  
   if (keybuf[0] == '\x1b') { // escape-коды
     // Например "\x1b[A"
     keybuf[kl++] = cigue_tty_getch();
     keybuf[kl++] = cigue_tty_getch();
   } // TODO: UTF8, вроде русских букв
+  
   keybuf[kl] = 0;
+  
   return keybuf;
 }
 
@@ -90,5 +99,6 @@ char cigue_tty_getch() {
 
   char res = 0;
   read(STDIN_FILENO, &res, 1);
+  
   return res;
 }

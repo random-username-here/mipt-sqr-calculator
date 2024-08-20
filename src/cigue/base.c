@@ -45,6 +45,7 @@ static void recurse_render(cigue_state* st, cigue_widget* wgt) {
 void cigue_render(int x, int y, cigue_state* state) {
 
   assert(state && "You cannot render state = NULL");
+
   // Сам рендер
   recurse_compute_dims(state, state->_first);
   state->_first->x = x;
@@ -62,6 +63,7 @@ void cigue_begin(cigue_state* state, cigue_widget* widget) {
   assert(state && "Cannot begin widget in state = NULL");
   cigue_assert_buf_memory(state->buf, widget);
   _cigue_widget_stack* stack_item = cigue_mem_new(state->buf, _cigue_widget_stack);
+  
   if (state->_first == NULL) {
     // Первый виджет
     state->_first = widget;
@@ -75,6 +77,7 @@ void cigue_begin(cigue_state* state, cigue_widget* widget) {
     *state->_stack_top->new_child_place = widget;
     stack_item->parent = state->_stack_top;
   }
+  
   stack_item->wgt = widget;
   stack_item->new_child_place = &widget->first_child;
   state->_stack_top = stack_item;
@@ -84,6 +87,7 @@ void cigue_end(cigue_state* state) {
 
   assert(state && "Cannot end widget in state = NULL");
   assert(state->_stack_top != NULL && "There should be some widget to end");
+  
   _cigue_widget_stack* item = state->_stack_top;
   state->_stack_top = state->_stack_top->parent;
   if (!state->_stack_top) return; // закрыли корневой
