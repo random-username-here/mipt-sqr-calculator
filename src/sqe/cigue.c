@@ -63,12 +63,12 @@ static double text_input(cigue_state* gui, char* buf, size_t maxlen,
 }
 
 /// Увелчиваем или уменьшаем значение в пределах
-/// `[0; max)` клавишами `K_LEFT`/`K_RIGHT`.
-void handle_focus(int* selected, int max, const char* key) {
+/// `[0; num_inputs)` клавишами `K_LEFT`/`K_RIGHT`.
+void handle_focus(int* selected, int num_inputs, const char* key) {
   assert(selected);
   assert(key);
 
-  if (!strcmp(key, K_RIGHT) && *selected < 2)
+  if (!strcmp(key, K_RIGHT) && *selected < num_inputs-1)
     ++*selected; 
   if (!strcmp(key, K_LEFT) && *selected > 0)
     --*selected;
@@ -79,12 +79,11 @@ void sqe_cigue_ui() {
   cigue_state* gui = cigue_new_state();
   cigue_tty_init();
 
-
   char _s[] = "\1";
   char* key = _s;
   double a, b, c;
   char a_buf[21] = "1", b_buf[21] = "4", c_buf[21] = "3";
-  int selected = 1;
+  int selected = 0;
 
   while (!key || strcmp(key, "q")) {
     if (*key == '\0') {
