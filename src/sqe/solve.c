@@ -18,6 +18,7 @@ static void _solve_linear(solve_result* res, double b, double c) {
 
 // ax^2 + bx + c = 0, a != 0
 static void _solve_sqr(solve_result* res, double a, double b, double c) {
+  assert(res);
   res->D = b * b - 4 * a * c;
   if (iszero(res->D)) // D = 0
     res->type = RESULT_SQR_ONE, res->x1 = -b/(2*a);
