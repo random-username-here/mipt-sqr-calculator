@@ -1,57 +1,43 @@
+#include <cstdlib>
 #include <string.h>
 #include <stdio.h>
 #include "sqe/cigue.h"
-
 #ifdef GTK_UI
-#include <gtk/gtk.h>
-#include "sqe/ui.h"
-
-void activate (GtkApplication* app, gpointer _) {
-  GtkWindow* window = GTK_WINDOW(gtk_application_window_new(app));
-  gtk_window_set_title(window, "Решатель квадратных уравнений");
-  gtk_window_set_default_size(window, 800, 600);
-  sqe_build_ui(window);
-  gtk_window_present(window);
-}
-
-
-int gtk_main (int argc, char **argv) {
-  GtkApplication* app = gtk_application_new("org.i-s-d.sqr-equation", G_APPLICATION_DEFAULT_FLAGS);
-  g_signal_connect(app, "activate", G_CALLBACK(activate), NULL);
-  int rc = g_application_run(G_APPLICATION(app), argc, argv);
-  g_object_unref(app);
-  return rc;
-}
+  #include "sqe/ui.h"
 #endif
+
+static void print_help() {
+  printf("sqe - Square equation solver\n\n");
+  printf("Variants:\n");
+  printf("  gtk - Graphical version, based on GTK4. Has its own help message.\n");
+  #ifndef GTK_UI
+    printf("        ! This version was compiled without -DGTK_UI, so this option does not work.\n");
+  #endif
+  printf("  cigue Cigue-based version, runs by default.\n");
+}
 
 int main (int argc, char** argv) {
   if (argc > 1 && !strcmp(argv[1], "--help")) {
-    fprintf(stderr, "sqe - Square equation solver\n\n");
-    fprintf(stderr, "Variants:\n");
-    fprintf(stderr, "  gtk - Graphical version, based on GTK4. Has its own help message.\n");
-#ifndef GTK_UI
-    fprintf(stderr, "        ! This version was compiled without -DGTK_UI, so this option does not work.\n");
-#endif
-    fprintf(stderr, "  curses - Ncurses-based version, runs by default.\n");
-    return 0;
+    print_help();
+    return EXIT_SUCCESS;
   }
 
   if (argc > 1 && !strcmp(argv[1], "gtk")) {
-#ifdef GTK_UI
-    // Прячем argv[1].
-    argv[1] = argv[0];
-    return gtk_main(argc-1, argv+1);
-#else
-    fprintf(stderr, "This executable was compiled without -DGTK_UI, so this won't work.");
-    return -1;
-#endif
+    #ifdef GTK_UI
+      // Прячем argv[1].
+      argv[1] = argv[0];
+      return gtk_main(argc-1, argv+1);
+    #else
+      printf("This executable was compiled without -DGTK_UI, so this won't work.");
+      return EXIT_FAILURE;
+    #endif
   }
 
-  if ((argc > 1 && !strcmp(argv[1], "curses")) || argc == 1) {
+  if ((argc > 1 && !strcmp(argv[1], "cigue")) || argc == 1) {
     sqe_cigue_ui();
-    return 0;
+    return EXIT_SUCCESS;
   }
   
-  fprintf(stderr, "Wrong options, consider reading --help\n");
-  return -1;
+  printf("Wrong options, consider reading --help\n");
+  return EXIT_FAILURE;
 }

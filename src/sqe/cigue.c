@@ -4,10 +4,15 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <assert.h>
 #include "cigue/tty.h"
 #include "cigue/base.h"
 #include "cigue/widgets.h"
 #include "sqe/cigue.h"
+
+const char K_BACKSPACE[] = "\x7f";
+const char K_LEFT[] = "\x1b[D";
+const char K_RIGHT[] = "\x1b[C";
 
 static double to_double(const char* buf) {
   if (*buf == 0) // ничего не введено
@@ -18,11 +23,8 @@ static double to_double(const char* buf) {
     if (*end || isnan(res))
       return NAN;
     return res;
-  }}
-
-const char K_BACKSPACE[] = "\x7f";
-const char K_LEFT[] = "\x1b[D";
-const char K_RIGHT[] = "\x1b[C";
+  }
+}
 
 static void logo(cigue_state* gui) {
   cigue_column(gui, 0) {
@@ -30,8 +32,8 @@ static void logo(cigue_state* gui) {
     cigue_label(gui, "└─┐│─┼┐├┬┘  ├┤ │─┼┐│ │├─┤ │ ││ ││││└─┐");
     cigue_label(gui, "└─┘└─┘└┴└─  └─┘└─┘└└─┘┴ ┴ ┴ ┴└─┘┘└┘└─┘");
     cigue_label(gui, "");
-    cigue_label(gui, "\x1b[90m  [q]\x1b[0m Чтобы завершить программу");
-    cigue_label(gui, "\x1b[90m  [<-], [->]\x1b[0m Чтобы двигаться между полями ввода");
+    cigue_label(gui, ESC_GRAY "  [q]" ESC_RESET " Чтобы завершить программу");
+    cigue_label(gui, ESC_GRAY "  [<-], [->]" ESC_RESET " Чтобы двигаться между полями ввода");
   }
 }
 
@@ -60,7 +62,20 @@ static double text_input(cigue_state* gui, char* buf, size_t maxlen,
   return dbl;
 }
 
+/// Увелчиваем или уменьшаем значение в пределах
+/// `[0; max)` клавишами `K_LEFT`/`K_RIGHT`.
+void handle_focus(int* selected, int max, const char* key) {
+  assert(selected);
+  assert(key);
+
+  if (!strcmp(key, K_RIGHT) && *selected < 2)
+    ++*selected; 
+  if (!strcmp(key, K_LEFT) && *selected > 0)
+    --*selected;
+}
+
 void sqe_cigue_ui() {
+
   cigue_state* gui = cigue_new_state();
   cigue_tty_init();
 
@@ -77,13 +92,9 @@ void sqe_cigue_ui() {
       continue;
     }
 
-    // Двигаемся вправо/влево по полям ввода.
-    if (!strcmp(key, K_RIGHT) && selected < 2)
-      ++selected;
-      
-    if (!strcmp(key, K_LEFT) && selected > 0)
-      --selected;
+    handle_focus(&selected, 3, key);
 
+    // Двигаемся вправо/влево по полям ввода.
     cigue_column(gui, 1) {
       logo(gui);
 

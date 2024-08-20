@@ -1,6 +1,9 @@
+#include <assert.h>
+#include "cigue/base.h"
 #include "sqe/cigue.h"
 #include "cigue/widgets.h"
 #include "cigue/math-widgets.h"
+#include "sqe/solve.h"
 
 static void paint_const_any_solution(cigue_state* gui, const solve_result* res) {
   cigue_label(gui, "0 = 0");
@@ -64,6 +67,36 @@ static void paint_sqr_one_solution(cigue_state* gui, const solve_result* res) {
   }
 }
 
+static void _sqr_twosolution_formula(cigue_state* gui) {
+  cigue_row(gui, 0) {
+    cigue_label(gui, " = ");
+    cigue_math_frac(gui) {
+      cigue_row(gui, 0) {
+        cigue_label(gui, "-b ± ");
+        cigue_math_sqrt(gui) {
+          cigue_label(gui, "D");
+        }
+      }
+      cigue_label(gui, "2a");
+    }
+  }
+}
+
+static void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_result* res) {
+  cigue_row(gui, 0) {
+    cigue_label(gui, " = ");
+    cigue_math_frac(gui) {
+      cigue_row(gui, 0) {
+        cigue_labelf(gui, "%lf ± ", -res->b);
+        cigue_math_sqrt(gui) {
+          cigue_labelf(gui, "%lf", res->D);
+        }
+      }
+      cigue_labelf(gui, "2 * %lf", res->a);
+    }
+  }
+}
+
 static void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
   paint_D_calc(gui, res);
   cigue_label(gui, "D > 0 ⇒ решения два");
@@ -73,31 +106,9 @@ static void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
     cigue_label(gui, "x");
     cigue_column(gui, 0) {
       // Первая строка - формула
-      cigue_row(gui, 0) {
-        cigue_label(gui, " = ");
-        cigue_math_frac(gui) {
-          cigue_row(gui, 0) {
-            cigue_label(gui, "-b ± ");
-            cigue_math_sqrt(gui) {
-              cigue_label(gui, "D");
-            }
-          }
-          cigue_label(gui, "2a");
-        }
-      }
+      _sqr_twosolution_formula(gui); 
       // Вторая строка - формула с значениями
-      cigue_row(gui, 0) {
-        cigue_label(gui, " = ");
-        cigue_math_frac(gui) {
-          cigue_row(gui, 0) {
-            cigue_labelf(gui, "%lf ± ", -res->b);
-            cigue_math_sqrt(gui) {
-              cigue_labelf(gui, "%lf", res->D);
-            }
-          }
-          cigue_labelf(gui, "2 * %lf", res->a);
-        }
-      }
+      _sqr_twosolution_formula_computation(gui, res);
       // Пропустим строку, т.к. выглядит слишком склеенно.
       cigue_label(gui, "");
       // Третья строка - ответы.
@@ -106,17 +117,14 @@ static void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
   }
 }
 
-typedef void (*solution_painter)(cigue_state* gui, const solve_result* res);
-
-static const solution_painter solution_painters[] = {
-  paint_const_any_solution,
-  paint_const_none_solution,
-  paint_linear_solution,
-  paint_sqr_none_solution,
-  paint_sqr_one_solution,
-  paint_sqr_two_solution
-};
-
 void sqe_cigue_paint_solution(cigue_state* gui, const solve_result *res) {
-  solution_painters[res->type](gui, res);
+  switch(res->type) {
+    case RESULT_CONST_ANY:  paint_const_any_solution(gui, res);  break;
+    case RESULT_CONST_NONE: paint_const_none_solution(gui, res); break;
+    case RESULT_LINEAR:     paint_linear_solution(gui, res);     break;
+    case RESULT_SQR_NONE:   paint_sqr_none_solution(gui, res);   break;
+    case RESULT_SQR_ONE:    paint_sqr_one_solution(gui, res);    break;
+    case RESULT_SQR_TWO:    paint_sqr_two_solution(gui, res);    break;
+    default:                assert(false);                       break;
+  }
 }
