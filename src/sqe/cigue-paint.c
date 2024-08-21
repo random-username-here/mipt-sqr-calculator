@@ -3,6 +3,7 @@
 #include "sqe/cigue.h"
 #include "cigue/widgets.h"
 #include "cigue/math-widgets.h"
+#include "cigue/tty.h"
 #include "sqe/solve.h"
 
 void paint_const_any_solution(cigue_state* gui, const solve_result* res);
@@ -28,13 +29,13 @@ void _sqr_twosolution_formula_computation(cigue_state* gui, const solve_result* 
 void paint_const_any_solution(cigue_state* gui, const solve_result* res) {
 
   cigue_label(gui, "0 = 0");
-  cigue_label(gui, "⇒ " ESC_BOLD "x любое" ESC_RESET);
+  cigue_label(gui, "⇒ " CIGUE_E_BOLD "x любое" CIGUE_E_RESET);
 }
 
 void paint_const_none_solution(cigue_state* gui, const solve_result* res) {
 
   cigue_labelf(gui, "%lf = 0", res->c);
-  cigue_label(gui, "такое невозможно, так что " ESC_BOLD "x = ∅" ESC_RESET);
+  cigue_label(gui, "такое невозможно, так что " CIGUE_E_BOLD "x = ∅" CIGUE_E_RESET);
 }
 
 void paint_linear_solution(cigue_state* gui, const solve_result* res) {
@@ -50,7 +51,7 @@ void paint_linear_solution(cigue_state* gui, const solve_result* res) {
       cigue_labelf(gui, "%lf", res->c);
       cigue_labelf(gui, "%lf", res->b);
     }
-    cigue_labelf(gui, " = " ESC_BOLD "%lf" ESC_RESET, res->x1);
+    cigue_labelf(gui, " = " CIGUE_E_BOLD "%lf" CIGUE_E_RESET, res->x1);
   }
 }
 
@@ -70,7 +71,7 @@ void paint_sqr_none_solution(cigue_state* gui, const solve_result* res) {
 
   paint_D_calc(gui, res);
   cigue_label(gui, "D < 0 ⇒ решений нет");
-  cigue_label(gui, ESC_BOLD "x = ∅" ESC_RESET);
+  cigue_label(gui, CIGUE_E_BOLD "x = ∅" CIGUE_E_RESET);
 }
 
 void paint_sqr_one_solution(cigue_state* gui, const solve_result* res) {
@@ -141,7 +142,7 @@ void paint_sqr_two_solution(cigue_state* gui, const solve_result* res) {
       // Пропустим строку, т.к. выглядит слишком склеенно.
       cigue_label(gui, "");
       // Третья строка - ответы.
-      cigue_labelf(gui, " = " ESC_BOLD "{%lf; %lf}" ESC_RESET, res->x1, res->x2);
+      cigue_labelf(gui, " = " CIGUE_E_BOLD "{%lf; %lf}" CIGUE_E_RESET, res->x1, res->x2);
     }
   }
 }
@@ -155,6 +156,6 @@ void sqe_cigue_paint_solution(cigue_state* gui, const solve_result *res) {
     case RESULT_SQR_NONE:   paint_sqr_none_solution(gui, res);   break;
     case RESULT_SQR_ONE:    paint_sqr_one_solution(gui, res);    break;
     case RESULT_SQR_TWO:    paint_sqr_two_solution(gui, res);    break;
-    default:                assert(false);                       break;
+    default:                assert(0);                           break;
   }
 }

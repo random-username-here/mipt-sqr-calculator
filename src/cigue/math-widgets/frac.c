@@ -10,6 +10,8 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 
   //self_data* data = (self_data*) self->widget_data;
 
+  // TODO: designated initializers?
+  // *self = (struct type){ ... };
   self->first_child->x = self->x + self->width/2 - self->first_child->width/2;
   self->first_child->y = self->y;
   self->first_child->next->x = self->x + self->width/2 - self->first_child->next->width/2;
@@ -18,6 +20,7 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
   for (int i = 0; i < self->width; ++i)
     cigue_tty_puts(self->x + i, self->y + self->first_child->height, "─");
 }
+
 
 static inline int max(int a, int b) {
 
@@ -32,7 +35,7 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
   assert(self->first_child->next && "fraction requires denominator");
   assert(self->first_child->next->next == NULL && "fraction requres two sub-elements");
 
-  self->width = max(self->first_child->width, self->first_child->next->width) + 2;
+  self->width = max(self->first_child->width, self->first_child->next->width) + 2; // TODO: padding constant?
   self->height = self->first_child->height + self->first_child->next->height + 1;
   self->above_baseline = self->first_child->height + 1;
 }

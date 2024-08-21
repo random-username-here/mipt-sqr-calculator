@@ -6,7 +6,7 @@
 
 // Данный код служит иллюстрацией того, зачем нужны шаблоны.
 
-typedef struct {
+typedef struct { // TODO: null?
 } self_data;
 
 #define ESC_GRAY "\x1b[90m"

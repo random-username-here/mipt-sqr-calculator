@@ -14,11 +14,11 @@ struct cigue_state;
 struct cigue_widget {
   /// Следующий виджет в списке детей какого-то
   /// родительского виджета.
-  struct cigue_widget* next;
+  struct cigue_widget* next; // TODO: think about using a dynamic array for this
 
   /// Первый ребёнок этого виджета.
   /// Следующие за ним можно добыть как `first_child->next->next...`.
-  struct cigue_widget* first_child;
+  struct cigue_widget* first_child; // TODO: this seems like too much space :)
 
   /// Высота виджета над строкой.
   /// Если виджет - одна строка текста,
@@ -51,11 +51,26 @@ struct cigue_widget {
   void* widget_data;
 };
 
+
+// TODO: maybe it's better to store widget_data close
+// to the widget? Consider this structure:
+//
+// struct widget {
+//   void (*draw)(widget*);
+// };
+// 
+// struct widget_box {
+//   widget base; 
+//   // ...
+// };
+
+
+
 typedef struct cigue_widget cigue_widget;
 
 struct _cigue_widget_stack {
   struct _cigue_widget_stack* parent;
-  cigue_widget* wgt;
+  cigue_widget* wgt; // TODO: better name?
   cigue_widget** new_child_place;
 };
 
@@ -95,6 +110,9 @@ void cigue_begin(cigue_state* state, cigue_widget* widget);
 /// Закрыли этот виджет.
 void cigue_end(cigue_state* state);
 
+
+// TODO: `__` is reserved, it's better to avoid them.
+// TODO: separate file for this:
 #define __concat2(a, b) a##b
 #define __concat(a, b) __concat2(a, b)
 
@@ -120,3 +138,5 @@ void cigue_end(cigue_state* state);
   for (int __concat(__cigue_autowgt_, __LINE__) = (begin_fn(gui __VA_OPT__(,) __VA_ARGS__), 0);\
        __concat(__cigue_autowgt_, __LINE__) != 1;\
        ++__concat(__cigue_autowgt_, __LINE__), cigue_end(gui))
+
+// TODO: intermediate macro to avoid this much __concat's

@@ -25,7 +25,7 @@ void cigue_tty_init() {
     return;
 
   if (!atexit_registered) {
-    atexit(cigue_tty_deinit);
+    atexit(cigue_tty_deinit); // TODO: maybe it's better to be explicit?
     atexit_registered = true;
   }
 

@@ -10,13 +10,10 @@
 #include "cigue/widgets.h"
 #include "sqe/cigue.h"
 
-#define K_BACKSPACE "\x7f"
-#define K_LEFT      "\x1b[D"
-#define K_RIGHT     "\x1b[C"
+// TODO: const is better
+double to_double(const char* buf); // TODO: extract into other file?
 
-double to_double(const char* buf);
-
-void logo(cigue_state* gui);
+void logo(cigue_state* gui); // TODO: print_*
 
 void handle_focus(int* selected, int num_inputs, const char* key);
 
@@ -25,11 +22,11 @@ double text_input(cigue_state* gui, char* buf, size_t maxlen,
 
 ////////////////////////////////////////////////////////////
 
-double to_double(const char* buf) {
+double to_double(const char* buf) { // TODO: i see nothing bad in marking this as static, please conslult with previous mentor about the reason for such decision
   
   assert(buf);
 
-  if (*buf == 0) // ничего не введено
+  if (*buf == 0) // ничего не введено // TODO: it's better to use type-explicit notation '\0'
     return NAN;
   else {
     char* end = NULL;
@@ -43,17 +40,24 @@ double to_double(const char* buf) {
 void logo(cigue_state* gui) {
 
   cigue_column(gui, 0) {
-    cigue_label(gui, "┌─┐┌─┐ ┬─┐  ┌─┐┌─┐ ┬ ┬┌─┐┌┬┐┬┌─┐┌┐┌┌─┐");
+    cigue_label(gui, "┌─┐┌─┐ ┬─┐  ┌─┐┌─┐ ┬ ┬┌─┐┌┬┐┬┌─┐┌┐┌┌─┐"); // TODO: cigue_put_text?
     cigue_label(gui, "└─┐│─┼┐├┬┘  ├┤ │─┼┐│ │├─┤ │ ││ ││││└─┐");
     cigue_label(gui, "└─┘└─┘└┴└─  └─┘└─┘└└─┘┴ ┴ ┴ ┴└─┘┘└┘└─┘");
     cigue_label(gui, "");
-    cigue_label(gui, ESC_GRAY "  [q]" ESC_RESET " Чтобы завершить программу");
-    cigue_label(gui, ESC_GRAY "  [<-], [->]" ESC_RESET " Чтобы двигаться между полями ввода");
+    cigue_label(gui, CIGUE_E_GRAY "  [q]" CIGUE_E_RESET " Чтобы завершить программу");
+    cigue_label(gui, CIGUE_E_GRAY "  [<-], [->]" CIGUE_E_RESET " Чтобы двигаться между полями ввода");
   }
 }
 
+
+// TODO: better name, maybe handle_input_key...
+//
+// TODO: maybe you can make a similar function handle_text_input
+// that will just add a symbol when it's already known that user
+// added one. Special keys (like left arrow or ^X can be handled
+// or discarded before its called)
 double text_input(cigue_state* gui, char* buf, size_t maxlen,
-                         bool focused, char* keypress) {
+                         bool focused, char* keypress) { // TODO: alignment
 
   assert(gui);
   assert(buf);
@@ -62,7 +66,7 @@ double text_input(cigue_state* gui, char* buf, size_t maxlen,
   // Обрабатываем ввод текста
   if (focused) {
     size_t len = strlen(buf);
-    if (len > 0 && !strcmp(keypress, K_BACKSPACE))
+    if (len > 0 && !strcmp(keypress, CIGUE_K_BACKSPACE)) // !strcmp(...) == 'x not equal y' but it's actually the opposite, I'd rather use strcmp(...) == 0
       buf[len-1] = 0; // TODO: стираем юникод.
     if (strlen(keypress) == 1 && len < maxlen && isprint(*keypress)) {
       buf[len] = *keypress;
@@ -73,8 +77,8 @@ double text_input(cigue_state* gui, char* buf, size_t maxlen,
   double dbl = to_double(buf);
 
   // Риусуем UI
-  cigue_begin_border(gui);
-    cigue_labelf(gui, "%s%20s%s %s" ESC_RESET, (isnan(dbl) ? ESC_RED : ""),
+  cigue_begin_border(gui); // TODO: inconsistent
+    cigue_labelf(gui, "%s%20s%s %s" CIGUE_E_RESET, (isnan(dbl) ? CIGUE_E_RED : ""),
         buf, (focused ? "█" : " "), (isnan(dbl) ? "x" : " "));
   cigue_end(gui);
 
@@ -88,9 +92,9 @@ void handle_focus(int* selected, int num_inputs, const char* key) {
   assert(selected);
   assert(key);
 
-  if (!strcmp(key, K_RIGHT) && *selected < num_inputs-1)
+  if (!strcmp(key, CIGUE_K_RIGHT) && *selected < num_inputs-1)
     ++*selected; 
-  if (!strcmp(key, K_LEFT) && *selected > 0)
+  if (!strcmp(key, CIGUE_K_LEFT) && *selected > 0)
     --*selected;
 }
 
@@ -99,11 +103,12 @@ void sqe_cigue_ui() {
   cigue_state* gui = cigue_new_state();
   cigue_tty_init();
 
-  char _s[] = "\1";
-  char* key = _s;
-  double a, b, c;
-  char a_buf[21] = "1", b_buf[21] = "4", c_buf[21] = "3";
-  int selected = 0;
+  char _s[] = "\1"; // TODO: better name
+  char* key = _s; // TODO: read about compound literals
+  double a, b, c; // TODO: initialize variables
+  char a_buf[21] = "1", b_buf[21] = "4", c_buf[21] = "3"; // TODO: weird buffer sizes
+  // TODO: Variable Length Array (VLA), char buffer[size]; (in cpp we have alloca)
+  int selected = 0; // TODO: a separate struct for "game" state?
 
   while (!key || strcmp(key, "q")) {
     if (*key == '\0') {
@@ -131,7 +136,7 @@ void sqe_cigue_ui() {
         if (isnan(a) || isnan(b) || isnan(c))
           cigue_label(gui, "Введите что-то вменяемое.");
         else {
-          solve_result res = sqe_solve(a, b, c);
+          solve_result res = sqe_solve(a, b, c); // TODO: cigue.c name feels like library code, but it's not.
           sqe_cigue_paint_solution(gui, &res);
         }
       }

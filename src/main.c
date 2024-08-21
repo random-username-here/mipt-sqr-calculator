@@ -1,12 +1,15 @@
-#include <cstdlib>
+#include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 #include "sqe/cigue.h"
+
 #ifdef GTK_UI
   #include "sqe/ui.h"
 #endif
 
 void print_help();
+bool has_arg(int argc, const char* argv, const char* name, char* );
 
 enum exit_statuses {
   EXIT_GTK_NOT_COMPILED_WITH = 1,

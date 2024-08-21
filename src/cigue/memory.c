@@ -20,7 +20,7 @@ void cigue_mem_free_buffer(cigue_mem_buffer* buf) {
 
   assert(buf && "Buffer to free must be != NULL");
   
-  free(buf->memory);
+  free(buf->memory); // = nullptr;
   free(buf);
 }
 
@@ -38,7 +38,7 @@ void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size) {
   // Нужны "умные указатели", не ломающиеся после переезда.
   // Или какая-то ещё муть.
   // FIXME FIXME FIXME!
-  assert(buf->alloc_point + size < buf->avail_size && "Buffer must have enough memory!");
+  assert(buf->alloc_point + size < buf->avail_size && "Buffer must have enough memory!"); // TODO: null?
   /*while (buf->alloc_point + size > buf->avail_size) {
     // Нужно больше места!
     size_t new_sz = buf->avail_size * 3 / 2 + 1;

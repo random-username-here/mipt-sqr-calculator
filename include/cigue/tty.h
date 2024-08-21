@@ -1,18 +1,36 @@
-//! 
-//! Что-то вроде curses, только с современными фичами.
-//!
-//! Не использует terminfo, т.к. VT100 вы сегодня найдёте
-//! разве что в музее. Все пользуются стандартными, xterm-
-//! подобными терминалами. (не считая Windows-ятников)
-//!
+/*! 
+ * @file
+ * @brief Что-то вроде curses, только с современными фичами.
+ *
+ * Не использует terminfo, т.к. VT100 вы сегодня найдёте
+ * разве что в музее. Все пользуются стандартными, xterm-
+ * подобными терминалами. (не считая Windows-ятников)
+*/
 #pragma once
 
-/// Какая-то точка на экране.
-struct cigue_vec2 {
-  int x, y;
-};
+/// @{
+/// Escape-коды для покраски текста в терминале.
+/// Это строковые макросы, так что их можно
+/// склеивать со строковыми константами
+#define CIGUE_E_GRAY      "\x1b[90m"
+#define CIGUE_E_RED       "\x1b[91m"
+#define CIGUE_E_GREEN     "\x1b[92m"
+#define CIGUE_E_YELLOW    "\x1b[93m"
+#define CIGUE_E_BLUE      "\x1b[94m"
+#define CIGUE_E_MAGENTA   "\x1b[95m"
+#define CIGUE_E_CYAN      "\x1b[96m"
+#define CIGUE_E_WHITE     "\x1b[97m"
+/// @}
 
-typedef struct cigue_vec2 cigue_vec2;
+
+#define CIGUE_E_RESET     "\x1b[0m"
+#define CIGUE_E_BOLD      "\x1b[1m"
+
+
+#define CIGUE_K_BACKSPACE "\x7f"
+#define CIGUE_K_LEFT      "\x1b[D"
+#define CIGUE_K_RIGHT     "\x1b[C"
+
 
 /// Инициализируем терминал
 void cigue_tty_init();
@@ -21,7 +39,7 @@ void cigue_tty_init();
 /// Эта функция автоматически вызывается при завершении программы,
 /// так что вызывать её не обязательно (в отличии от `endscr()` из
 /// curses).
-void cigue_tty_deinit();
+void cigue_tty_deinit(); // TODO: stop? finish? ...
 
 /// Получаем размеры терминала, сохраняем в dims.
 /// TODO

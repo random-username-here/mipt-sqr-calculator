@@ -30,11 +30,11 @@ typedef struct {
 /// `cigue_mem_alloc/save/save_str`.
 cigue_mem_buffer* cigue_mem_new_buffer(size_t initial_size);
 
-/// Освобождает буффер.
+/// Освобождает буффер. // TODO: be clearer in the comment, is buffer preserved and just cleared or is it deallocated?
 void cigue_mem_free_buffer(cigue_mem_buffer* buf);
 
 /// Начался новый кадр, выкидываем всё из буффера.
-void cigue_mem_new_frame(cigue_mem_buffer* buf);
+void cigue_mem_new_frame(cigue_mem_buffer* buf); // TODO: better name
 
 /// Аллоцируем `size` байт из буффера
 void* cigue_mem_alloc(cigue_mem_buffer* buf, size_t size);
@@ -55,3 +55,6 @@ void cigue_assert_buf_memory(cigue_mem_buffer* buf, const void* mem);
 
 /// Создаём объект заданного типа, выровнянный как нужно.
 #define cigue_mem_new(buf, type) ((type*) cigue_mem_alloc_aligned(buf, sizeof(type), alignof(type)))
+
+
+// TODO: you can watch Andrei Alexandrescu lecture on cppconf on allocators

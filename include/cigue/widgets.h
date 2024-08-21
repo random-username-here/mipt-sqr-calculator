@@ -26,6 +26,7 @@ void cigue_labelf(cigue_state* s, const char* fmt, ...)
 /// То же самое, что `cigue_labelf`, только принимает `va_list`.
 /// Аттрибута для такого у clangd/gcc нет.
 void cigue_labelvf(cigue_state* s, const char* fmt, va_list args);
+// TODO: look up order of v, f suffixes in printf-like functions
 
 /// Начинаем колонку, заканчиваемую `cigue_end()`.
 /// Строка в этом виджете на уровне строки первого элемента.

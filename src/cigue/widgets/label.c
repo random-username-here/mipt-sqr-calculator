@@ -67,7 +67,7 @@ void cigue_labelvf(cigue_state* s, const char* fmt, va_list args) {
   char* buf = (char*) cigue_mem_alloc(s->buf, len+1);
   
   // Печатаем в него
-  vsprintf(buf, fmt, args);
+  vsprintf(buf, fmt, args); // TODO: pragma warning?
   
   // Выводим подпись
   cigue_external_label(s, buf);
