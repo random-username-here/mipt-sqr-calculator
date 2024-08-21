@@ -20,22 +20,23 @@
 #include <stdio.h>
 #include <string.h>
 
-/// \defgroup imini_test_colors ASCII escape codes for use inside `imini-test.h`
-/// \addtogroup imini_test_colors
-/// \{
+// ASCII escape codes for use inside `imini-test.h`
 #define _IMINI_TEST_E_GRAY  "\x1b[90m"
 #define _IMINI_TEST_E_RED   "\x1b[91m"
 #define _IMINI_TEST_E_GREEN "\x1b[92m"
 #define _IMINI_TEST_E_BOLD  "\x1b[1m"
 #define _IMINI_TEST_E_RESET "\x1b[0m"
-/// \}
 
 //------- Function part ----------------------------------//
 
 /// \internal
 /// `constructor` attribute for function.
-/// \todo Find etter supported variant of this
+/// \todo Find better supported variant of this
 #define _imini_test_ctor __attribute__((constructor))
+
+#define _IMINI_TEST_HEADER_PREFIX "---- "
+#define _IMINI_TEST_HEADER_SUFFIX " "
+#define _IMINI_TEST_HEADER_WIDTH 80
 
 /// Begin test case, printing nice header.
 /// End this case with `imini_test_case_end`.
@@ -45,10 +46,12 @@
     const char* _imini_test__name = (name); \
     const size_t _imini_test__name_len = strlen(_imini_test__name); \
     printf("\n" \
-        _IMINI_TEST_E_GRAY "---- " _IMINI_TEST_E_RESET \
+        _IMINI_TEST_E_GRAY _IMINI_TEST_HEADER_PREFIX _IMINI_TEST_E_RESET \
         _IMINI_TEST_E_BOLD "%s" _IMINI_TEST_E_RESET \
-        _IMINI_TEST_E_GRAY " ", _imini_test__name); \
-    for (size_t i = 7 + _imini_test__name_len; i < 80; ++i) \
+        _IMINI_TEST_E_GRAY _IMINI_TEST_HEADER_SUFFIX, _imini_test__name); \
+    for (size_t i = sizeof(_IMINI_TEST_HEADER_PREFIX) \
+                  + sizeof(_IMINI_TEST_HEADER_SUFFIX) \
+                  + _imini_test__name_len; i < _IMINI_TEST_HEADER_WIDTH; ++i) \
       printf("-"); \
     printf(_IMINI_TEST_E_RESET "\n\n");
 
@@ -69,7 +72,7 @@
 
 //------- Assert part ------------------------------------//
 
-// Diffrent status messages printed by tester.
+// Different status messages printed by tester.
 // Must be the same length to print properly.
 // (you can pad them with spaces to achive that)
 #define _IMINI_TEST_PROGRESS_MSG _IMINI_TEST_E_GRAY  "...." _IMINI_TEST_E_RESET
@@ -128,14 +131,14 @@
 
 /// \internal
 /// Comparator used in \ref imini_test_assert_equal
-#define _imini_test_equal_sign(a, b) (a == b)
+#define _imini_test_equality_usual(a, b) (a == b)
 
 /// Check equality of `a` and `b` and fail this test if they are not equal.
 /// \param a     - First value
 /// \param b     - Second value
 /// \param label - Label of the assert
 #define imini_test_assert_equal(a, b, label) \
-  _imini_test_assert_equal_base(_imini_test_equal_sign, a, b, label)
+  _imini_test_assert_equal_base(_imini_test_equality_usual, a, b, label)
 
 /// \internal
 /// Comparator used in \ref imini_test_assert_somewhat_equal
