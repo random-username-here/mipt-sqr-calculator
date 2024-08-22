@@ -1,5 +1,5 @@
-#define ISTD_IMINI_TEST_IMPLEMENTATION
-#include "istd/imini-test.h"
+#define ISTD_MINI_TEST_IMPLEMENTATION
+#include "istd/mini-test.h"
 
 imini_test_case("Assert checks")
   imini_test_assert(1, "One must count as true"); 

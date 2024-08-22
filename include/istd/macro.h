@@ -3,8 +3,8 @@
  * \brief Common macros used by other istd libs.
  */
 
-#ifndef ISTD_IMACRO
-#define ISTD_IMACRO
+#ifndef ISTD_MACRO
+#define ISTD_MACRO
 
 /// \private
 #define _imacro_internal_concat2(a, b) a##b

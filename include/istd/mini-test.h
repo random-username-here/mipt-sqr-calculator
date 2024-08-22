@@ -2,7 +2,7 @@
  * \file
  * \brief Primitive single-header-file testing library.
  *
- * Implement this using `ISTD_IMINI_TEST_IMPLEMENTATION` macro before include in one file.
+ * Implement this using `ISTD_MINI_TEST_IMPLEMENTATION` macro before include in one file.
  * 
  * Syntax for this is:
  * ```c
@@ -13,13 +13,14 @@
  * ```
  */
 
-#ifndef ISTD_IMINI_TEST
-#define ISTD_IMINI_TEST
+#ifndef ISTD_MINI_TEST
+#define ISTD_MINI_TEST
 
-#include "istd/imacro.h"
+#include "istd/macro.h"
 #include <stdio.h>
 #include <string.h>
 #include <setjmp.h>
+#include <math.h>
 
 // ASCII escape codes for use inside `imini-test.h`
 #define _IMINI_TEST_E_GRAY   "\x1b[90m"
@@ -211,12 +212,19 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__\
   )
 
+#define _imini_generic_abs(X)\
+  (_Generic((X), \
+      long double: fabsl, \
+          default: fabs,  \
+            float: fabsf  \
+  )(X))
 
 /// \internal
 /// Comparator used in \ref imini_test_assert_somewhat_equal
-#define _imini_test_equality_eps(a, b, eps) (a < b * (1 + eps) && a > b * (1 - eps))
+#define _imini_test_equality_eps(a, b, eps) \
+  (_imini_generic_abs(a - b) < eps)
 
-/// Check if floats `a` and `b` are equal with given relative `epsilon`
+/// Check if floats `a` and `b` are equal with given absolute `epsilon`
 /// \param a       - First value
 /// \param b       - Second value
 /// \param eps     - Epsilon.
@@ -233,8 +241,8 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 
 #endif
 
-#if !defined(ISTD_IMINI_TEST_IMPLEMENTED) && defined(ISTD_IMINI_TEST_IMPLEMENTATION)
-#define ISTD_IMINI_TEST_IMPLEMENTED
+#if !defined(ISTD_MINI_TEST_IMPLEMENTED) && defined(ISTD_MINI_TEST_IMPLEMENTATION)
+#define ISTD_MINI_TEST_IMPLEMENTED
 
 /// Just implement one global here...
 jmp_buf _imini_test__jmpbuf_to_fail;
