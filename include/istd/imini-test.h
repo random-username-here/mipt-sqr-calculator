@@ -22,11 +22,12 @@
 #include <setjmp.h>
 
 // ASCII escape codes for use inside `imini-test.h`
-#define _IMINI_TEST_E_GRAY  "\x1b[90m"
-#define _IMINI_TEST_E_RED   "\x1b[91m"
-#define _IMINI_TEST_E_GREEN "\x1b[92m"
-#define _IMINI_TEST_E_BOLD  "\x1b[1m"
-#define _IMINI_TEST_E_RESET "\x1b[0m"
+#define _IMINI_TEST_E_GRAY   "\x1b[90m"
+#define _IMINI_TEST_E_RED    "\x1b[91m"
+#define _IMINI_TEST_E_GREEN  "\x1b[92m"
+#define _IMINI_TEST_E_YELLOW "\x1b[93m"
+#define _IMINI_TEST_E_BOLD   "\x1b[1m"
+#define _IMINI_TEST_E_RESET  "\x1b[0m"
 
 //------- Function part ----------------------------------//
 
@@ -126,33 +127,36 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       { printf("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " is not true\n", #condition); }, __VA_ARGS__)
 
 /// \internal
-/// Compare `a` and `b` using given comparator and fail this test if they are not equal.
+/// Compare `a` and `b` using given comparator and fail this test if comparator
+/// returned false.
 /// \param condition - Comparator function macro with signature `bool COMPARE(a, b)`
 /// \param a     - First value
 /// \param b     - Second value
 /// \param arg   - Extra argument to compartor macro
+/// \param note  - Note to print above values of `a` and `b`, like `"Those values are not equal"`
 /// \param label - Label of the assert
 /// \param VA_ARGS - Format 
-#define _imini_test_assert_equal_base(condition, a, b, arg, fmt, ...) { \
+#define _imini_test_comparator_base(condition, a, b, arg, note, fmt, ...) { \
     typeof(a) _imini_test__a = (a); \
     typeof(b) _imini_test__b = (b); \
     _imini_test_assert_base( \
       condition(_imini_test__a, _imini_test__b, arg), \
       fmt, \
       { \
-        printf("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (a) = ", #a); \
+        printf("   %s:\n", (note)); \
+        printf("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (a) = " _IMINI_TEST_E_YELLOW, #a); \
         _imini_test_print(_imini_test__a); \
-        printf("\n   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (b) = ", #b); \
+        printf("\n   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (b) = " _IMINI_TEST_E_YELLOW, #b); \
         _imini_test_print(_imini_test__b); \
-        printf("\n"); \
+        printf(_IMINI_TEST_E_RESET "\n"); \
       } \
       __VA_OPT__(,) __VA_ARGS__ \
     ) \
   }
 
 /// \internal
-/// Comparator used in \ref imini_test_assert_equal
-#define _imini_test_equality_usual(a, b, _) (a == b)
+/// Comparator used to check equality/inequalty with given operator
+#define _imini_test_operator(a, b, op) (a op b)
 
 /// Check equality of `a` and `b` and fail this test if they are not equal.
 /// \param a       - First value
@@ -160,7 +164,53 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param fmt     - Label of the assert
 /// \param VA_ARGS - Arguments to printf(fmt, ...) for printing label
 #define imini_test_assert_equal(a, b, fmt, ...) \
-  _imini_test_assert_equal_base(_imini_test_equality_usual, a, b, _, fmt, __VA_ARGS__)
+  _imini_test_comparator_base( \
+      _imini_test_operator, a, b, ==, \
+      "Those values should've been equal", \
+      fmt, __VA_ARGS__ \
+  )
+
+/// Check if `a < b`.
+#define imini_test_assert_lt(a, b, fmt, ...) \
+  _imini_test_comparator_base( \
+      _imini_test_operator, a, b, <, \
+      "A should've been less than B", \
+      fmt, __VA_ARGS__ \
+  )
+
+/// Check if `a > b`.
+#define imini_test_assert_gt(a, b, fmt, ...) \
+  _imini_test_comparator_base( \
+      _imini_test_operator, a, b, >, \
+      "A should've been greater than B",\
+      fmt, __VA_ARGS__ \
+  )
+
+/// Check if `a >= b`.
+#define imini_test_assert_ge(a, b, fmt, ...) \
+  _imini_test_comparator_base( \
+      _imini_test_operator, a, b, >=,\
+      "A should've been >= B", \
+      fmt, __VA_ARGS__\
+  )
+
+/// Check if `a <= b`.
+#define imini_test_assert_le(a, b, fmt, ...) \
+  _imini_test_comparator_base(\
+      _imini_test_operator, a, b, <=, \
+      "A should've been <= B",\
+      fmt, __VA_ARGS__\
+  )
+
+/// Check if `a != b`.
+/// \todo Maybe use other printer?
+#define imini_test_assert_ne(a, b, fmt, ...) \
+  _imini_test_comparator_base(\
+      _imini_test_operator, a, b, !=,\
+      "Those values should've been diffrent, but they are not",\
+      fmt, __VA_ARGS__\
+  )
+
 
 /// \internal
 /// Comparator used in \ref imini_test_assert_somewhat_equal
@@ -174,7 +224,11 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param VA_ARGS - Arguments to printf(fmt, ...) for printing label
 #define imini_test_assert_somewhat_equal(a, b, eps, fmt, ...) { \
     typeof(eps) _imini_test__eps = (eps); \
-    _imini_test_assert_equal_base(_imini_test_equality_eps, a, b, _imini_test__eps, fmt, __VA_ARGS__);\
+    _imini_test_comparator_base(\
+        _imini_test_equality_eps, a, b, _imini_test__eps,\
+        "Those values should've been approximately equal",\
+        fmt, __VA_ARGS__\
+    );\
   }
 
 #endif
