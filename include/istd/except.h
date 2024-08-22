@@ -63,17 +63,15 @@
 #include <stdlib.h>
 
 #ifndef istd_except_malloc 
+  /// Function to allocate buffer of given size
   #define istd_except_malloc(sz) malloc(sz)
 #endif
 
+
 #ifndef istd_except_free 
+  /// Function to free buffer
   #define istd_except_free(buf) free(buf)
 #endif
-
-/// \internal
-/// Attribute to make funciton always inline
-/// \todo Version for MSVC
-#define _iexcept_force_inline __attribute__((always_inline))
 
 /// Printer to print information about exception
 /// if it was not caught.
@@ -136,6 +134,15 @@ void* _iexcept_thrown();
 void _iexcept_clean_exc();
 
 /// Throw given exception
+/// \param data - Exception data
+/// \param clean - Function to free given data
+/// \param print - Function to print that exception in case
+///                it won't be caught.
+///
+/// Functions can be `NULL`, in that case:
+///   - `clean()` - data is not freed by any means
+///   - `print()` - Some message, like `<no printer specified for this exeption>`
+///                 will be printed.
 void iexcept_throw(void* data, iexcept_cleaner clean, iexcept_printer print);
 
 
