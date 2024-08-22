@@ -1,3 +1,4 @@
+#define ISTD_IMINI_TEST_IMPLEMENTATION
 #include "istd/imini-test.h"
 
 imini_test_case("Assert checks")
@@ -5,8 +6,12 @@ imini_test_case("Assert checks")
   imini_test_assert(0, "Zero shall fail test"); 
 imini_test_case_end
 
+int sum(int a, int b) {
+  return a + b;
+}
+
 imini_test_case("Assert equal checks")
-  imini_test_assert_equal(42, 42, "When values are equal"); 
+  imini_test_assert_equal(sum(1, 2), 3, "When values are equal"); 
   imini_test_assert_equal(42.4, 3, "When values are not equal"); 
 imini_test_case_end
 
