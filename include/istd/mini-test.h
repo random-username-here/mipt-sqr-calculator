@@ -23,6 +23,10 @@
 #include <setjmp.h>
 #include <math.h>
 
+/// Printf(), which strips escape sequences when output
+/// is redirected into file
+void imini_test_printf_escaped(const char* fmt, ...);
+
 // ASCII escape codes for use inside `imini-test.h`
 #define _IMINI_TEST_E_GRAY   "\x1b[90m"
 #define _IMINI_TEST_E_RED    "\x1b[91m"
@@ -52,7 +56,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param fmt     - Your usual format string
 /// \param VA_ARGS - Params corresponding to that format string
 #define imini_test_header(fmt, ...) \
-  printf(_IMINI_TEST_E_GRAY "\n## " _IMINI_TEST_E_RESET \
+  imini_test_printf_escaped(_IMINI_TEST_E_GRAY "\n## " _IMINI_TEST_E_RESET \
          _IMINI_TEST_E_BOLD fmt "\n\n" _IMINI_TEST_E_RESET __VA_OPT__(,) __VA_ARGS__)
 
 /// Generate code for beginning of test case
@@ -84,23 +88,23 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     const size_t _imini_test__name_len = strlen(_imini_test__name); \
     \
     /* Print header */\
-    printf("\n" \
+    imini_test_printf_escaped("\n" \
         _IMINI_TEST_E_GRAY _IMINI_TEST_HEADER_PREFIX _IMINI_TEST_E_RESET \
         _IMINI_TEST_E_BOLD "%s" _IMINI_TEST_E_RESET \
         _IMINI_TEST_E_GRAY _IMINI_TEST_HEADER_SUFFIX, _imini_test__name); \
     for (size_t i = sizeof(_IMINI_TEST_HEADER_PREFIX) \
                   + sizeof(_IMINI_TEST_HEADER_SUFFIX) \
                   + _imini_test__name_len; i < _IMINI_TEST_HEADER_WIDTH; ++i) \
-      printf("-"); \
-    printf(_IMINI_TEST_E_RESET "\n\n"); \
+      imini_test_printf_escaped("-"); \
+    imini_test_printf_escaped(_IMINI_TEST_E_RESET "\n\n"); \
     \
     /* Setjmp if */ \
     if (setjmp(_imini_test__jmpbuf_to_fail)) { /* Error handler */ \
-      printf("\n" _IMINI_TEST_E_RED "Test failed!" _IMINI_TEST_E_RESET "\n"); \
+      imini_test_printf_escaped("\n" _IMINI_TEST_E_RED "Test failed!" _IMINI_TEST_E_RESET "\n"); \
       return; \
     } else { \
       user_fn();\
-      printf("\n" _IMINI_TEST_E_GREEN "All tests passed" _IMINI_TEST_E_RESET "\n");\
+      imini_test_printf_escaped("\n" _IMINI_TEST_E_GREEN "All tests passed" _IMINI_TEST_E_RESET "\n");\
     }\
   }\
   \
@@ -148,7 +152,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     long double: "%Lf", \
     /*_Bool: "%s",*/\
     void *: "%p",\
-    default: "<value of unknowntype>%c" /* HACK: this prints extra space, so arg to printf will be used */ \
+    default: "<value of unknowntype>%c" /* HACK: this prints extra space, so arg to imini_test_printf_escaped will be used */ \
   )
 
 #define _imini_test_print_value(value) \
@@ -176,7 +180,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// Write given value to stdout.
 /// \param value - Value to print. Can be anything.
 #define _imini_test_print(value) \
-  printf(_imini_test_print_fmt(value), _imini_test_print_value(value))
+  imini_test_printf_escaped(_imini_test_print_fmt(value), _imini_test_print_value(value))
 
 #pragma GCC diagnostic pop
 
@@ -192,19 +196,19 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \internal
 /// Check what condition is true, if not print something with printer.
 /// \param condition - Boolean condition to check
-/// \param fmt       - Label for this check, with printf syntax
+/// \param fmt       - Label for this check, with imini_test_printf_escaped syntax
 /// \param printer   - Block of code to be called when condition fails,
-///                    like `{ printf("We are doomed!\n"); }`
+///                    like `{ imini_test_printf_escaped("We are doomed!\n"); }`
 /// \param VA_ARGS   - Arguments, required by formatted label
 #define _imini_test_assert_base(condition, fmt, printer, ...) { \
-    printf(" %s " fmt, _IMINI_TEST_PROGRESS_MSG __VA_OPT__(,) __VA_ARGS__); \
+    imini_test_printf_escaped(" " _IMINI_TEST_PROGRESS_MSG " " fmt __VA_OPT__(,) __VA_ARGS__); \
     if ((condition)) { \
-      printf("\r %s\n", _IMINI_TEST_OK_MSG); \
+      imini_test_printf_escaped("\r " _IMINI_TEST_OK_MSG "\n"); \
     } else { \
-      printf("\r %s\n", _IMINI_TEST_FAIL_MSG); \
-      printf("\n"); \
+      imini_test_printf_escaped("\r " _IMINI_TEST_FAIL_MSG "\n"); \
+      imini_test_printf_escaped("\n"); \
       printer; \
-      printf("\n"); /* Some space after end of test section */ \
+      imini_test_printf_escaped("\n"); /* Some space after end of test section */ \
       longjmp(_imini_test__jmpbuf_to_fail, 0); \
     } \
   }
@@ -215,7 +219,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param VA_ARGS - Arguments for `fmt`
 #define imini_test_assert(condition, fmt, ...) \
     _imini_test_assert_base(condition, fmt,\
-      { printf("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " is not true\n", #condition); }, __VA_ARGS__)
+      { imini_test_printf_escaped("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " is not true\n", #condition); }, __VA_ARGS__)
 
 /// \internal
 /// Compare `a` and `b` using given comparator and fail this test if comparator
@@ -234,12 +238,12 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       condition(_imini_test__a, _imini_test__b, arg), \
       fmt, \
       { \
-        printf("   %s:\n", (note)); \
-        printf("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (a) = " _IMINI_TEST_E_YELLOW, #a); \
+        imini_test_printf_escaped("   %s:\n", (note)); \
+        imini_test_printf_escaped("   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (a) = " _IMINI_TEST_E_YELLOW, #a); \
         _imini_test_print(_imini_test__a); \
-        printf("\n   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (b) = " _IMINI_TEST_E_YELLOW, #b); \
+        imini_test_printf_escaped("\n   " _IMINI_TEST_E_RED "%s" _IMINI_TEST_E_RESET " (b) = " _IMINI_TEST_E_YELLOW, #b); \
         _imini_test_print(_imini_test__b); \
-        printf(_IMINI_TEST_E_RESET "\n"); \
+        imini_test_printf_escaped(_IMINI_TEST_E_RESET "\n"); \
       } \
       __VA_OPT__(,) __VA_ARGS__ \
     ) \
@@ -253,7 +257,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param a       - First value
 /// \param b       - Second value
 /// \param fmt     - Label of the assert
-/// \param VA_ARGS - Arguments to printf(fmt, ...) for printing label
+/// \param VA_ARGS - Arguments to imini_test_printf_escaped(fmt, ...) for printing label
 #define imini_test_assert_equal(a, b, fmt, ...) \
   _imini_test_comparator_base( \
       _imini_test_operator, a, b, ==, \
@@ -319,7 +323,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \param b       - Second value
 /// \param eps     - Epsilon.
 /// \param fmt     - Label of the assert
-/// \param VA_ARGS - Arguments to printf(fmt, ...) for printing label
+/// \param VA_ARGS - Arguments to imini_test_printf_escaped(fmt, ...) for printing label
 #define imini_test_assert_somewhat_equal(a, b, eps, fmt, ...) { \
     typeof(eps) _imini_test__eps = (eps); \
     _imini_test_comparator_base(\
