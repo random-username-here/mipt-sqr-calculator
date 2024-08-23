@@ -10,7 +10,7 @@ static void check_linear(double expected, solve_result res, const char* name) {
   assert(name);
   
   imini_test_assert_equal(
-      res.type, RESULT_LINEAR,
+      res.type, (enum solve_result_type) RESULT_LINEAR,
       "%s: solution must have a proper type", name
   );
   imini_test_assert_somewhat_equal(
@@ -25,8 +25,10 @@ static void check_sqr(int num_res, solve_result res, const char* name, ...) {
   assert(num_res <= 2);
   assert(name);
 
+  enum solve_result_type expected_type = (enum solve_result_type) (RESULT_SQR_NONE + num_res);
+
   imini_test_assert_equal(
-      res.type, RESULT_SQR_NONE + num_res,
+      res.type, expected_type,
       "%s: solution must have a proper type", name
   );
 
@@ -43,18 +45,18 @@ static void check_sqr(int num_res, solve_result res, const char* name, ...) {
 }
 
 
-imini_test_case("Square solver")
+imini_test_case("Square solver") {
   solve_result res;
   
   //------------------------------------------------------//
   imini_test_header("Const cases (a = 0 and b = 0)");
 
   res = sqe_solve(0, 0, 0);
-  imini_test_assert_equal(res.type, RESULT_CONST_ANY,
+  imini_test_assert_equal(res.type, (enum solve_result_type) RESULT_CONST_ANY,
       "When x = anything, result type shall be correct");
 
   res = sqe_solve(0, 0, 1);
-  imini_test_assert_equal(res.type, RESULT_CONST_NONE,
+  imini_test_assert_equal(res.type, (enum solve_result_type) RESULT_CONST_NONE,
       "When x = nothing, result type shall be correct");
 
   //------------------------------------------------------//
@@ -70,6 +72,6 @@ imini_test_case("Square solver")
 
   //check_sqr(0, sqe_solve(), "7893.3 x + 4509.34 = 0");
 
-imini_test_case_end
+}
 
 

@@ -15,6 +15,7 @@
 
 #ifndef ISTD_MINI_TEST
 #define ISTD_MINI_TEST
+ 
 
 #include "istd/macro.h"
 #include <stdio.h>
@@ -54,13 +55,35 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
   printf(_IMINI_TEST_E_GRAY "\n## " _IMINI_TEST_E_RESET \
          _IMINI_TEST_E_BOLD fmt "\n\n" _IMINI_TEST_E_RESET __VA_OPT__(,) __VA_ARGS__)
 
-/// Begin test case, printing nice header.
-/// End this case with `imini_test_case_end`.
-/// \param name - Name of the test case, a string.
-#define imini_test_case(name) \
-  _imini_test_ctor static void imacro_concat(_imini_test_, __COUNTER__) () { \
+/// Generate code for beginning of test case
+/// It will return something like this:
+/// ```c
+/// static void user_fn(); // predefenition
+///
+/// // Function which gets called at start
+/// static void [[constructor]] test_fn() {
+///   // ... print header
+///   if (setjmp(buffer_to_jump_to_if_failed)) {
+///     // ... print "we failed"
+///   } else {
+///     user_fn();
+///     // ... print "tests passed"
+///   }
+/// }
+///
+/// static void user_fn() /* and here macro ends */
+/// ```
+#define _imini_test_case_code(name, test_fn, user_fn) \
+  /* Predefine user function */ \
+  static void user_fn (); \
+  /* Function with test case handling */ \
+  _imini_test_ctor static void test_fn () {  \
+    \
+    /* Store test name in temp. variable */ \
     const char* _imini_test__name = (name); \
     const size_t _imini_test__name_len = strlen(_imini_test__name); \
+    \
+    /* Print header */\
     printf("\n" \
         _IMINI_TEST_E_GRAY _IMINI_TEST_HEADER_PREFIX _IMINI_TEST_E_RESET \
         _IMINI_TEST_E_BOLD "%s" _IMINI_TEST_E_RESET \
@@ -70,25 +93,92 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
                   + _imini_test__name_len; i < _IMINI_TEST_HEADER_WIDTH; ++i) \
       printf("-"); \
     printf(_IMINI_TEST_E_RESET "\n\n"); \
+    \
+    /* Setjmp if */ \
     if (setjmp(_imini_test__jmpbuf_to_fail)) { /* Error handler */ \
       printf("\n" _IMINI_TEST_E_RED "Test failed!" _IMINI_TEST_E_RESET "\n"); \
       return; \
-    } else {
+    } else { \
+      user_fn();\
+      printf("\n" _IMINI_TEST_E_GREEN "All tests passed" _IMINI_TEST_E_RESET "\n");\
+    }\
+  }\
+  \
+  /* Function with user code */ \
+  static void user_fn ()
 
-/// End of test case. Prints "All test passed" message if
-/// everything is okay.
-#define imini_test_case_end \
-    } printf("\n" _IMINI_TEST_E_GREEN "All tests passed" _IMINI_TEST_E_RESET "\n"); }
+/// This step is requred because otherwise __COUNTER__ would
+/// expand twice.
+#define _imini_test_case_code_from_number(name, counter) \
+  _imini_test_case_code(\
+    name,\
+    imacro_concat(_imini_test_generated__, counter),\
+    imacro_concat(_imini_test_generated_user__, counter)\
+  )
+
+/// Begin test case, printing nice header.
+/// \param name - Name of the test case, a string.
+#define imini_test_case(name) \
+  _imini_test_case_code_from_number(name, __COUNTER__)
+
+//------- Generic print function -------------------------//
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wfloat-equal" // Somehow found in stringization of bool
+
+// This is one big HACK, because C is not
+// suited for this thing. I know that.
+// TODO: figure out how to fit bool here
+
+#define _imini_test_print_fmt(value) \
+  _Generic((value), \
+    char: "%c", \
+    signed char: "%hhd", \
+    unsigned char: "%hhu", \
+    signed short: "%hd", \
+    unsigned short: "%hu", \
+    signed int: "%d", \
+    unsigned int: "%u", \
+    long int: "%ld", \
+    unsigned long int: "%lu", \
+    long long int: "%lld", \
+    unsigned long long int: "%llu", \
+    float: "%f", \
+    double: "%f", \
+    long double: "%Lf", \
+    /*_Bool: "%s",*/\
+    void *: "%p",\
+    default: "<value of unknowntype>%c" /* HACK: this prints extra space, so arg to printf will be used */ \
+  )
+
+#define _imini_test_print_value(value) \
+  _Generic((value), /* HACK: gcc thinks _Bool case can be evaluated with float value */ \
+    /*_Bool: (value ? "true" : "false"),*/\
+    char: value, \
+    signed char: value, \
+    unsigned char: value, \
+    signed short: value, \
+    unsigned short: value, \
+    signed int: value, \
+    unsigned int: value, \
+    long int: value, \
+    unsigned long int: value, \
+    long long int: value, \
+    unsigned long long int: value, \
+    float: value, \
+    double: value, \
+    long double: value, \
+    void *: value,\
+    default: ' '\
+  )
 
 /// \internal
 /// Write given value to stdout.
 /// \param value - Value to print. Can be anything.
 #define _imini_test_print(value) \
-  _Generic((value), \
-    int: printf("%d", (value)), \
-    double: printf("%lf", (value)), \
-    default: printf("<value of unknown type>") \
-  )
+  printf(_imini_test_print_fmt(value), _imini_test_print_value(value))
+
+#pragma GCC diagnostic pop
 
 //------- Assert part ------------------------------------//
 
