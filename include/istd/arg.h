@@ -24,7 +24,7 @@ typedef enum {
 
 } iarg_type;
 
-/// Description
+/// Description of one argument
 typedef struct {
 
   /// Names of this argument, as space separated string.
@@ -37,13 +37,21 @@ typedef struct {
   void* user_param;
 
   /// Callback
-  /// Gets `NULL` when this argument is a flag.
+  /// Gets `NULL` as value when this argument is a flag.
   void (*callback)(void* state, void* user_param, const char* value);
 
 } iarg_spec;
 
+/// Value returned by `iarg_parse` after it finds some error and prints message
+/// aboutit.
 #define IARG_WRONG_ARG 1
 
+/// \brief Parse command line arguments
+/// \param argc     Number of arguments, as passed to `main()`
+/// \param argv     Values of arguments, again, as passed to `main`
+/// \param spec     List of argument descriptions
+/// \param num_args Number of arguments descrbed in `spec`
+/// \param state    State to pass to callbacks
 int iarg_parse(int argc, char** argv,
                iarg_spec* spec, size_t num_args,
                void* state);
