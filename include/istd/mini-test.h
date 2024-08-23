@@ -6,10 +6,10 @@
  * 
  * Syntax for this is:
  * ```c
- * imini_test_case("Test of abs()")
+ * imini_test_case("Test of abs()") {
  *   imini_test_assert(something, "Something shall be true");
  *   imini_test_assert_equal(get_answer(), 42, "Answer must be an actual answer");
- * imini_test_case_end
+ * }
  * ```
  */
 
