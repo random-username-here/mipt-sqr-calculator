@@ -167,4 +167,19 @@ void _ia_join(void** array,  const void* source,
     _ia_res__string_array;\
   })
 
+/// Resize array to size `length`
+/// \param arr Array to resize
+/// \param length Resulting length you want
+#define ia_resize(arr, length) ({ \
+    \
+    typeof(*arr) **_ia_arr__resize = &(arr); \
+    typeof(length) _ia_len__resize = (length); \
+    \
+    if (ia_length(*_ia_arr__resize) < _ia_len__resize) \
+      _ia_maybe_grow((void**) _ia_arr__resize, sizeof(*arr), _ia_len__resize - ia_length(*_ia_arr__resize));\
+    \
+    ia_length(*_ia_arr__resize) = _ia_len__resize;\
+    *_ia_zero_byte(*_ia_arr__resize) = '\0';\
+  })
+
 #endif
