@@ -5,20 +5,17 @@
  * It works somewhat like this:
  *
  * ```
- *     _ia_memory_begin_offset (for alignment)   
- *   |<---------------------->|
  * -----------------------------------------------------------
- *   |     | len | availiable | element 1 | element 2 | ... | \0 |
+ *   | len | availiable | element 1 | element 2 | ... | \0 |
  * -----------------------------------------------------------
  *   ^                             ^
  *   |                    pointer given to you, of type element*
  *   beginning of alloc-ed memory
  * ```
  *
- * This library is header-only, so in one C file you should put
- * `#define ISTD_ARR_IMPLEMENTATION` to implement its functions.
- *
  * \note Uses gcc-s statement expressions, docs for them can be found here: https://gcc.gnu.org/onlinedocs/gcc/Statement-Exprs.html
+ * \note I hate this thing...
+ * \todo Macro variable name generators, to 
  */
 
 #ifndef ISTD_ARR
@@ -34,12 +31,13 @@
 typedef struct {
   size_t length;
   size_t availiable;
-} _ia_meta_t;
+  alignas(alignof(max_align_t)) void* data[];
+} _ia_internal_array;
 
 /// \internal
 /// Get pointer to internal metadata of array
 #define _ia_metadata(array) \
-  ((_iarr_meta_t*) (((char*) (array)) - sizeof(_iarr_meta_t)))
+  ((_ia_internal_array*) (((char*) (array)) - sizeof(_ia_internal_array)))
 
 /// Get length of dynamic array
 /// \param array - The array
@@ -52,22 +50,20 @@ typedef struct {
 /// guaranteed.
 /// \param array - Array
 /// \returns Number of element for which there is enough space
-#define ia_real_length(array)
+#define ia_availiable(array) \
+  (_ia_metadata(array)->availiable)
 
-/// \internal
-/// Distance from array element location to beginning
-/// of allocated memory.
-/// Calculated as `ceil(sizeof(metadata) / max_align) * max_align`
-#define _ia_memory_begin_offset \
-  ((sizeof(_ia_meta_t) + alignof(max_align_t) - 1) \
-   / alignof(max_align_t) * alignof(max_align_t))
+/// \brief Annotate type as array
+/// \todo Find a way to make this distinct from normal pointer.
+#define ia_arr(type) type*
+
 
 /// \internal
 /// Get address of zero byte after all array items
-#define _ia_zero_byte(array)  { \
-    typeof(array) _ia_arr = (array); \
-    ((char*) _ia_arr) + ia_length(_ia_arr) * sizeof(*_ia_arr); \
-  }
+#define _ia_zero_byte(array)  ({ \
+    typeof(array) _ia_arr__zero_byte = (array); \
+    ((char*) _ia_arr__zero_byte) + ia_length(_ia_arr__zero_byte) * sizeof(*_ia_arr__zero_byte); \
+  })
 
 /// \internal
 /// Creates array
@@ -78,7 +74,7 @@ void* _ia_make_array(size_t preallocate, size_t length, size_t item_size);
 
 /// \internal
 /// Make sure what  this buffer fits at least current number
-/// of elements + `num_items`.
+/// of elements + `num_items`. This **does not** change its length.
 /// \param array - Array for which to grow buffer if needed
 /// \param item_size - Size of items in said array
 /// \param num_items - Number of items, for which we need space
@@ -104,8 +100,8 @@ void _ia_join(void** array,  const void* source,
 /// \param size - Number of items. Each item is zeroed.
 /// \returns - Array of type `type*`
 #define ia_array_of(size, type) ({ /* This uses statement expressions */ \
-    size_t _ia_len = (size); /* Do not compute length twice */ \
-    (type*) _ia_make_array(_ia_len, _ia_len, sizeof(type)); \
+    size_t _ia_len__array_of = (size); /* Do not compute length twice */ \
+    (type*) _ia_make_array(_ia_len__array_of, _ia_len__array_of, sizeof(type)); \
     /* ^ Result of that line is returned */ \
   })
 
@@ -121,44 +117,54 @@ void _ia_join(void** array,  const void* source,
 /// Append item into given array
 /// \param array - Array to push item into
 /// \param item - Item to push.
-#define ia_push(array, item) { \
-    typeof(array) * _ia_arr = &(array); \
-    _ia_maybe_grow((void**) _ia_arr, sizeof(*array), 1); /* Alloc space if needed */ \
-    (*_ia_arr)[ia_length(*_ia_arr)++] = item; /* Store item */ \
-    *_ia_zero_byte(*_ia_arr) = '\0'; /* Update zero byte */ \
-  }
+#define ia_push(array, item) ({ \
+    typeof(array) * _ia_arr__push = &(array); \
+    _ia_maybe_grow((void**) _ia_arr__push, sizeof(*array), 1); /* Alloc space if needed */ \
+    (*_ia_arr__push)[ia_length(*_ia_arr__push)] = item; /* Store item */ \
+    ia_length(*_ia_arr__push)++; \
+    *_ia_zero_byte(*_ia_arr__push) = '\0'; /* Update zero byte */ \
+  })
 
 /// Pop last item from the array. Does not return it.
 /// It also does not `free` or do anything if it is a pointer.
 /// That's yout job.
 /// \param array - Array to remove last item from
-#define ia_pop(array) { \
-    typeof(array) _ia_arr = (array); \
-    --ia_length(_ia_arr); \
-    *_ia_zero_byte(_ia_arr) = '\0' \
-  }
+#define ia_pop(array) ({ \
+    typeof(array) _ia_arr__pop = (array); \
+    --ia_length(_ia_arr__pop); \
+    *_ia_zero_byte(_ia_arr__pop) = '\0'; \
+  })
 
 /// Free given array.
 /// \param array - Array to free
-#define ia_destroy(array) { free((char*) (array) - _ia_memory_begin_offset); }
+#define ia_destroy(array) free(_ia_metadata(array))
 
-//--- Implementation -------------------------------------//
+/// Join buffer to array
+/// \param array Array to join buffer to
+/// \param buffer Buffer to join
+/// \param length Length of the buffer
+#define ia_joinn(array, buffer, length) \
+  _ia_join((void**) &(array), (buffer), (length), sizeof(*array))
 
-//#ifdef ISTD_ARR_IMPLEMENTATION
+/// Join array2 to array
+#define ia_join(array, array2) \
+  ia_joinn(array, array2, ia_length(array2))
 
-void* _ia_make_array(size_t preallocate, size_t length, size_t item_size) {
-  
-}
+/// Join something zero-terminated to array
+#define ia_joinz(array, zterm) { \
+    typeof(zterm) _ia_zterm__joinz = (zterm); \
+    ia_joinn(array, _ia_zterm__joinz, strlen(_ia_zterm__joinz));\
+  }
 
-void _ia_maybe_grow(void** array, size_t item_size, size_t num_items) {
-
-}
-
-void _ia_join(void** array,  const void* source,
-              size_t num_items, size_t item_size) {
-  
-}
-
-//#endif
+/// Array containing given string
+/// \param str - String to store into that array
+#define ia_string_array(ctype, str) ({ \
+    /* Typeof(*str)* is required when we pass static string */ \
+    typeof(*str)* _ia_str__string_array = (str); \
+    size_t _ia_strlen__string_array = strlen(_ia_str__string_array);\
+    typeof(*str)* _ia_res__string_array = ia_array_of(_ia_strlen__string_array, typeof(*str));\
+    memcpy(_ia_res__string_array, _ia_str__string_array, _ia_strlen__string_array);\
+    _ia_res__string_array;\
+  })
 
 #endif
