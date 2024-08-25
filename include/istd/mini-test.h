@@ -152,6 +152,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     long double: "%Lf", \
     /*_Bool: "%s",*/\
     void *: "%p",\
+    char *: "`%s`",\
     default: "<value of unknowntype>%c" /* HACK: this prints extra space, so arg to imini_test_printf_escaped will be used */ \
   )
 
@@ -173,6 +174,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     double: value, \
     long double: value, \
     void *: value,\
+    char *: value,\
     default: ' '\
   )
 
@@ -213,7 +215,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     } \
   }
 
-/// Assert what condition is `true`
+/// \brief Assert what condition is `true`
 /// \param condition - Condition to check
 /// \param fmt - Label of this assert, like `"The value must be positive"`
 /// \param VA_ARGS - Arguments for `fmt`
@@ -253,7 +255,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// Comparator used to check equality/inequalty with given operator
 #define _imini_test_operator(a, b, op) (a op b)
 
-/// Check equality of `a` and `b` and fail this test if they are not equal.
+/// \brief Check equality of `a` and `b` and fail this test if they are not equal.
 /// \param a       - First value
 /// \param b       - Second value
 /// \param fmt     - Label of the assert
@@ -265,7 +267,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__ \
   )
 
-/// Check if `a < b`.
+/// \brief Check if `a < b`.
 #define imini_test_assert_lt(a, b, fmt, ...) \
   _imini_test_comparator_base( \
       _imini_test_operator, a, b, <, \
@@ -273,7 +275,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__ \
   )
 
-/// Check if `a > b`.
+/// \brief Check if `a > b`.
 #define imini_test_assert_gt(a, b, fmt, ...) \
   _imini_test_comparator_base( \
       _imini_test_operator, a, b, >, \
@@ -281,7 +283,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__ \
   )
 
-/// Check if `a >= b`.
+/// \brief Check if `a >= b`.
 #define imini_test_assert_ge(a, b, fmt, ...) \
   _imini_test_comparator_base( \
       _imini_test_operator, a, b, >=,\
@@ -289,7 +291,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__\
   )
 
-/// Check if `a <= b`.
+/// \brief Check if `a <= b`.
 #define imini_test_assert_le(a, b, fmt, ...) \
   _imini_test_comparator_base(\
       _imini_test_operator, a, b, <=, \
@@ -297,7 +299,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
       fmt, __VA_ARGS__\
   )
 
-/// Check if `a != b`.
+/// \brief Check if `a != b`.
 /// \todo Maybe use other printer?
 #define imini_test_assert_ne(a, b, fmt, ...) \
   _imini_test_comparator_base(\
@@ -318,7 +320,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 #define _imini_test_equality_eps(a, b, eps) \
   (_imini_generic_abs(a - b) < eps)
 
-/// Check if floats `a` and `b` are equal with given absolute `epsilon`
+/// \brief Check if floats `a` and `b` are equal with given absolute `epsilon`
 /// \param a       - First value
 /// \param b       - Second value
 /// \param eps     - Epsilon.
@@ -332,6 +334,18 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
         fmt, __VA_ARGS__\
     );\
   }
+
+#define _imini_test_equality_strcmp(a, b, _) (!strcmp(a, b))
+
+/// \brief Checks if two given strings are equal.
+#define imini_test_assert_str_equal(a, b, fmt, ...) { \
+    _imini_test_comparator_base(\
+        _imini_test_equality_strcmp, a, b, _,\
+        "Those strings should've been equal",\
+        fmt, __VA_ARGS__\
+    );\
+  }
+
 
 #endif
 
