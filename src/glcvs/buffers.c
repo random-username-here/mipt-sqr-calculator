@@ -12,6 +12,8 @@ void glcvs_buf_begin_new_shape(glcvs_ctx *ctx) {
 
   ia_resize(ctx->_backend.vertices, 0);
   ia_resize(ctx->_backend.indices, 0);
+
+  glUniform1i(ctx->_backend.shader.attr_use_texture, 0);
 }
 
 /// \brief Add new vertex to buffers
@@ -68,6 +70,9 @@ void glcvs_buf_draw(glcvs_ctx* ctx) {
   );
 
   glUniform4f(ctx->_backend.shader.attr_color, ctx->fill_color.r, ctx->fill_color.g, ctx->fill_color.b, 1.0f);
+
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glDrawElements(GL_TRIANGLES, ia_length(ctx->_backend.indices), GL_UNSIGNED_INT, 0);
 }

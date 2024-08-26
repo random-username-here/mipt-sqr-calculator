@@ -2,9 +2,11 @@
 #include <GL/glew.h>
 #include <GL/gl.h>
 #include <time.h>
+#include "glcvs/font.h"
 #include "istd/arr.h"
 #include "glcvs/context.h"
 #include "glcvs/gl-util.h"
+#include "glcvs/builtin-font.h"
 
 /// Size to use until user set context size
 /// (if this was 0, we would get division error and nothing shown)
@@ -14,18 +16,25 @@ const char* vertex_shader =
   "#version 330 core\n"
   "layout (location = 0) in vec2 aPos;\n"
   "layout (location = 1) in float aZ;\n"
+  "layout (location = 2) in vec2 aUV;\n"
+  "out vec2 uv;\n"
   "\n"
   "void main() {\n"
   "  gl_Position = vec4(aPos.x, aPos.y, aZ, 1.0);\n"
+  "  uv = aUV;\n"
   "}\n";
 
 const char* fragment_shader = 
   "#version 330 core\n"
   "out vec4 FragColor;\n"
   "uniform vec4 color;\n"
+  "uniform sampler2D uTexture;\n"
+  "uniform bool uUseTexture;\n"
+  "in vec2 uv;\n"
   "\n"
   "void main() {\n"
-  "  FragColor = color;\n"
+  "  float opacity = uUseTexture ? texture(uTexture, uv).r : 1.0f;\n"
+  "  FragColor = vec4(color.rgb, color.a * opacity);\n"
   "}\n";
 
 
@@ -41,6 +50,8 @@ glcvs_ctx* glcvs_context_new() {
     return NULL;
 
   ctx->_backend.shader.attr_color = glGetUniformLocation(shader, "color");
+  ctx->_backend.shader.attr_texture = glGetUniformLocation(shader, "uTexture");
+  ctx->_backend.shader.attr_use_texture = glGetUniformLocation(shader, "uUseTexture");
 
   glGenVertexArrays(1, &ctx->_backend.vertex_array);
   glBindVertexArray(ctx->_backend.vertex_array);
@@ -54,8 +65,24 @@ glcvs_ctx* glcvs_context_new() {
   glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(_glcvs_vertex), (void*) offsetof(_glcvs_vertex, z));
   glEnableVertexAttribArray(1);
 
+  glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(_glcvs_vertex), (void*) offsetof(_glcvs_vertex, uv));
+  glEnableVertexAttribArray(2);
+
   glGenBuffers(1, &ctx->_backend.element_buffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ctx->_backend.element_buffer);
+
+  glGenTextures(1, &ctx->_backend.font_atlas_tex);
+  glBindTexture(GL_TEXTURE_2D, ctx->_backend.font_atlas_tex);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+  glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+  glcvs_embeded_font fnt = glcvs_embeded_font_builtin_15();
+
+  glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+  glTexImage2D(GL_TEXTURE_2D, 0, GL_RED, fnt.atlas->width, fnt.atlas->height,
+               0, GL_RED, GL_UNSIGNED_BYTE, fnt.atlas->data);
 
   return ctx;
 }
@@ -63,7 +90,6 @@ glcvs_ctx* glcvs_context_new() {
 void glcvs_context_resize(glcvs_ctx* ctx, float w, float h) {
 
   assert(ctx);
-
   ctx->_width = w;
   ctx->_height = h;
 }

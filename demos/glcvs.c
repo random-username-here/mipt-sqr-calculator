@@ -5,8 +5,8 @@
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
 #include "glcvs/drawing.h"
+#include "glcvs/font.h"
 #include "glcvs/geometry.h"
-#include "glcvs/gl-util.h"
 #include "glcvs/context.h"
 #include "glcvs/drawing.h"
 
@@ -60,7 +60,7 @@ int main () {
     int w, h;
     glfwGetWindowSize(win, &w, &h);
     glViewport(0, 0, w, h);
-    glcvs_context_resize(ctx, w, h);
+    glcvs_context_resize(ctx, (float) w, (float) h);
 
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -70,6 +70,14 @@ int main () {
 
     ctx->fill_color = (glcvs_color) { 0.5f, 0.5f, 0.5f };
     glcvs_fill_rect(ctx, 20, 40, 30, 10);
+
+    ctx->fill_color = (glcvs_color) { 0.2f, 0.2f, 0.2f };
+    glcvs_fill_rect(ctx, 20, 80, 100, 20);
+
+    ctx->fill_color = (glcvs_color) { 1.0f, 1.0f, 1.0f };
+    glcvs_fill_text(ctx, 20, 60, "Hello world!");
+    glcvs_fill_text(ctx, 20, 80, "More text!");
+    glcvs_fill_text(ctx, 20, 100, "Юникод работает.");
 
     glfwPollEvents();
     glfwSwapBuffers(win);

@@ -36,14 +36,17 @@ DEDFLAGS_GDB = -D _DEBUG -ggdb3 -O0 -Wall -Wextra -Weffc++ -Waggressive-loop-opt
 
 DEDFLAGS = $(DEDFLAGS_GCC)
 
+GENERATED_HEADERS += include/glcvs/builtin-font.h
+GENERATED_SOURCES += src/glcvs/builtin-font.c
+
 # Использовать здесь АБСОЛЮТНЫЕ пути, без пробелов.
 # Иначе clangd ломается.
 # TODO: автоматически преобразовывать их?
 CFLAGS += -I$(THIS_DIR)/$(INCLUDE_DIR) -g $(DEDFLAGS) -Wno-unused-parameter #-DGTK_UI
 LDFLAGS += -lm $(DEDFLAGS) 
 
-HEADERS = $(shell find $(INCLUDE_DIR) -name '*.h')
-IMPL_SOURCES = $(filter-out $(MAIN_FILE), $(shell find $(SOURCE_DIR) -name '*.c'))
+HEADERS = $(shell find $(INCLUDE_DIR) -name '*.h') $(GENERATED_HEADERS)
+IMPL_SOURCES = $(filter-out $(MAIN_FILE) $(GENERATED_SOURCES), $(shell find $(SOURCE_DIR) -name '*.c')) $(GENERATED_SOURCES)
 TEST_SOURCES = $(shell find $(TEST_DIR) -name '*.c')
 
 all: test
@@ -68,6 +71,21 @@ $(BUILD_DIR):
 $(ALL_OBJ_FILES) : $(BUILD_DIR)/objects/%.o : %.c $(HEADERS)
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+### Шрифт
+
+FONT_PATH ?= resources/Builtin.zip
+FONT_BUILD_TARGET ?= build/font.target
+
+$(FONT_BUILD_TARGET): $(FONT_PATH)
+	python tool/mkfont/mkfont.py $(FONT_PATH) \
+														   include/glcvs/builtin-font.h \
+															 src/glcvs/builtin-font.c \
+															 glcvs/builtin-font.h
+	@touch $(FONT_BUILD_TARGET)
+
+include/glcvs/builtin-font.h: $(FONT_BUILD_TARGET)
+src/glcvs/builtin-font.c: $(FONT_BUILD_TARGET)
 
 ### Основная программа
 

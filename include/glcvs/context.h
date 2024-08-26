@@ -9,7 +9,7 @@
 typedef struct {
   glcvs_point pos;
   float z;
-
+  glcvs_point uv;
 } _glcvs_vertex;
 
 
@@ -26,20 +26,38 @@ typedef struct {
     /// Should support simple linear gradients
     unsigned program;
 
-    unsigned attr_color;
+    /// Fill color of the drawn shape (text is also tinted with this color)
+    /// Attribute type is vec4.
+    int attr_color;
+
+    /// Texture sampler. 
+    int attr_texture;
+
+    /// Use texture sampler or not? Boolean
+    int attr_use_texture;
   } shader;
 
+  /// Drawing buffers
   unsigned array_buffer, element_buffer;
 
+  /// Vertex array with those buffers
   unsigned vertex_array;
+
+  /// Font texture handler.
+  unsigned font_atlas_tex;
 
 } _glcvs_backend_data;
 
 /// \brief Context used by glcvs
 typedef struct {
+
+  /// Data related to OpenGL
   _glcvs_backend_data _backend;
+
+  /// Size of the viewport
   float _width, _height;
 
+  /// Current fill color (also applies to text)
   glcvs_color fill_color;
 } glcvs_ctx;
 
