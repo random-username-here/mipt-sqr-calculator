@@ -185,7 +185,7 @@ def gen_cmap(
     if notdef_char_index is None:
         raise ValueError('Character to print for missing glyphs not found in cmap')
 
-    chars.sort(key = lambda v : v['id'])
+    chars.sort(key = lambda v : int(v['id']))
 
     # -- Generate glyph table
 
