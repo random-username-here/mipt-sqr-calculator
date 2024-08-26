@@ -340,7 +340,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
 /// \brief Checks if two given strings are equal.
 #define imini_test_assert_str_equal(a, b, fmt, ...) { \
     _imini_test_comparator_base(\
-        _imini_test_equality_strcmp, a, b, _,\
+        _imini_test_equality_strcmp, ((char*) (a)), ((char*) (b)), _,\
         "Those strings should've been equal",\
         fmt, __VA_ARGS__\
     );\
