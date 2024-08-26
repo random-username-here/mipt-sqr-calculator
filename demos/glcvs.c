@@ -4,15 +4,17 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <GL/gl.h>
+#include "glcvs/drawing.h"
+#include "glcvs/geometry.h"
 #include "glcvs/gl-util.h"
 #include "glcvs/context.h"
-#include "glcvs/buffers.h"
+#include "glcvs/drawing.h"
 
 static void fail(const char* msg) {
   printf("Failed: %s\n", msg);
 }
 
-void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
+static void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
               GLsizei length, const GLchar *message, const void *userParam) {
   printf("GL message: %s\n", message);
 }
@@ -63,19 +65,17 @@ int main () {
     glClearColor(0.1f, 0.1f, 0.1f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT);
 
-    glcvs_buf_begin_new_shape(ctx);
+    ctx->fill_color = (glcvs_color) { 1.0f, 0.5f, 0.0f };
+    glcvs_fill_rect(ctx, 20, 20, 30, 10);
 
-    unsigned a = glcvs_buf_add_vertex(ctx, (_glcvs_vertex) { .pos = (glcvs_point){20, 20} }),
-             b = glcvs_buf_add_vertex(ctx, (_glcvs_vertex) { .pos = (glcvs_point){100, 20} }),
-             c = glcvs_buf_add_vertex(ctx, (_glcvs_vertex) { .pos = (glcvs_point){20, 100} });
-
-    glcvs_buf_add_triangle(ctx, a, b, c);
-
-    glcvs_buf_draw(ctx);
+    ctx->fill_color = (glcvs_color) { 0.5f, 0.5f, 0.5f };
+    glcvs_fill_rect(ctx, 20, 40, 30, 10);
 
     glfwPollEvents();
     glfwSwapBuffers(win);
   }
+
+  glcvs_context_destroy(ctx);
 
   glfwDestroyWindow(win);
   glfwTerminate();

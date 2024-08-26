@@ -67,6 +67,8 @@ void glcvs_buf_draw(glcvs_ctx* ctx) {
     GL_DYNAMIC_DRAW
   );
 
+  glUniform4f(ctx->_backend.shader.attr_color, ctx->fill_color.r, ctx->fill_color.g, ctx->fill_color.b, 1.0f);
+
   glDrawElements(GL_TRIANGLES, ia_length(ctx->_backend.indices), GL_UNSIGNED_INT, 0);
 }
 

@@ -13,9 +13,10 @@
 const char* vertex_shader = 
   "#version 330 core\n"
   "layout (location = 0) in vec2 aPos;\n"
+  "layout (location = 1) in float aZ;\n"
   "\n"
   "void main() {\n"
-  "  gl_Position = vec4(aPos.x, aPos.y, 0.0, 1.0);\n"
+  "  gl_Position = vec4(aPos.x, aPos.y, aZ, 1.0);\n"
   "}\n";
 
 const char* fragment_shader = 
@@ -24,7 +25,7 @@ const char* fragment_shader =
   "uniform vec4 color;\n"
   "\n"
   "void main() {\n"
-  "  FragColor = vec4(1.0, 1.0, 1.0, 1.0);\n"
+  "  FragColor = color;\n"
   "}\n";
 
 
@@ -49,6 +50,9 @@ glcvs_ctx* glcvs_context_new() {
 
   glVertexAttribPointer(0, 2, GL_FLOAT, GL_FALSE, sizeof(_glcvs_vertex), (void*) offsetof(_glcvs_vertex, pos));
   glEnableVertexAttribArray(0);
+
+  glVertexAttribPointer(1, 1, GL_FLOAT, GL_FALSE, sizeof(_glcvs_vertex), (void*) offsetof(_glcvs_vertex, z));
+  glEnableVertexAttribArray(1);
 
   glGenBuffers(1, &ctx->_backend.element_buffer);
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ctx->_backend.element_buffer);

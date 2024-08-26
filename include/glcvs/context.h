@@ -39,6 +39,8 @@ typedef struct {
 typedef struct {
   _glcvs_backend_data _backend;
   float _width, _height;
+
+  glcvs_color fill_color;
 } glcvs_ctx;
 
 /// \brief Create glcvs context

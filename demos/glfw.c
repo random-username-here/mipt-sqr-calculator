@@ -10,7 +10,7 @@ static void fail(const char* msg) {
   printf("Failed: %s\n", msg);
 }
 
-void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
+static void gl_debug(GLenum source, GLenum type, GLuint id, GLenum severity,
               GLsizei length, const GLchar *message, const void *userParam) {
   printf("GL message: %s\n", message);
 }
