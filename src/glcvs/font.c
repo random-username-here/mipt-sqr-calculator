@@ -66,8 +66,7 @@ void glcvs_fill_text(glcvs_ctx* ctx, float x, float y, const char* text) {
   glBindTexture(GL_TEXTURE_2D, ctx->_backend.font_atlas_tex);
   glUniform1i(ctx->_backend.shader.attr_use_texture, 1);
 
-  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_15();
-
+  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_13();
 
   while(1) {
 
@@ -131,7 +130,7 @@ float glcvs_text_width(glcvs_ctx* ctx, const char* text) {
   // This could use font style from ctx, but that will be later
   // For now this requires not needed ctx argument.
 
-  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_15();
+  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_13();
 
   float w = 0;
 
@@ -151,10 +150,12 @@ float glcvs_text_width(glcvs_ctx* ctx, const char* text) {
 }
 
 glcvs_text_mertics glcvs_get_text_metrics() {
-  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_15();
+  const glcvs_embeded_font fnt = glcvs_embeded_font_builtin_13();
+  const glcvs_embeded_glyph_data plus_sign = fnt.glyphs[fnt.index_for_glyph('+')];
 
   return (glcvs_text_mertics) {
-    .ascent = fnt.above_baseline,
-    .descent = fnt.line_height - fnt.above_baseline
+    .ascent = (float) fnt.above_baseline,
+    .descent = (float) (fnt.line_height - fnt.above_baseline),
+    .fraction_line = (float) fnt.above_baseline - (float) plus_sign.y_off - (float) plus_sign.tex_h / 2.0f
   };
 }

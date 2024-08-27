@@ -62,6 +62,8 @@ void glcvs_fill_text(glcvs_ctx* ctx, float x, float y, const char* text);
 
 typedef struct {
   float ascent, descent;
+  // Ascent of center of `+`. On this height fraction line is placed.
+  float fraction_line;
 } glcvs_text_mertics;
 
 /// \brief Compute width of given text

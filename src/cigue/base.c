@@ -14,6 +14,17 @@ cigue_state* cigue_new_state() {
   return st;
 }
 
+#ifdef CIGUE_GL
+
+void cigue_use_glcvs(cigue_state* state, glcvs_ctx* ctx) {
+  
+  assert(state);
+  assert(ctx);
+
+  state->ctx = ctx;
+}
+#endif
+
 void cigue_free_state(cigue_state* state) {
 
   assert(state && "You cannot free state = NULL");

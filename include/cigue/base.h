@@ -9,6 +9,17 @@
 #pragma once
 #include "cigue/memory.h"
 
+#ifdef CIGUE_GL
+#include "glcvs/context.h"
+
+#define CIGUE_BACKGROUND ((glcvs_color) { 0.9, 0.9, 0.9 })
+#define CIGUE_BACKGROUND_BORDERED ((glcvs_color) { 1.0, 1.0, 1.0 })
+#define CIGUE_BORDER ((glcvs_color) { 0.8, 0.8, 0.8 })
+#define CIGUE_TEXT ((glcvs_color) { 0, 0, 0 })
+
+#endif
+
+
 struct cigue_state;
 
 struct cigue_widget {
@@ -64,8 +75,6 @@ struct cigue_widget {
 //   // ...
 // };
 
-
-
 typedef struct cigue_widget cigue_widget;
 
 struct _cigue_widget_stack {
@@ -89,12 +98,23 @@ struct cigue_state {
   /// Не трогать.
   /// Аллоцируется в буффере
   _cigue_widget_stack* _stack_top;
+
+  #ifdef CIGUE_GL
+  /// Канвас, на котором виджеты рисуются
+  glcvs_ctx *ctx;
+  #endif
 };
 
 typedef struct cigue_state cigue_state;
 
 /// Создаём объект, в котором данные, которые хранятся дольше одного кадра.
 cigue_state* cigue_new_state();
+
+#ifdef CIGUE_GL
+
+/// Используем канвас для отрисовки UI вместо терминала.
+void cigue_use_glcvs(cigue_state* state, glcvs_ctx* ctx);
+#endif
 
 /// Удаляем этот объект.
 void cigue_free_state(cigue_state* state);

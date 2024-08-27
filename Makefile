@@ -42,7 +42,7 @@ GENERATED_SOURCES += src/glcvs/builtin-font.c
 # Использовать здесь АБСОЛЮТНЫЕ пути, без пробелов.
 # Иначе clangd ломается.
 # TODO: автоматически преобразовывать их?
-CFLAGS += -I$(THIS_DIR)/$(INCLUDE_DIR) -g $(DEDFLAGS) -Wno-unused-parameter #-DGTK_UI
+CFLAGS += -I$(THIS_DIR)/$(INCLUDE_DIR) -g $(DEDFLAGS) -Wno-unused-parameter -DCIGUE_GL
 LDFLAGS += -lm $(DEDFLAGS) 
 
 HEADERS = $(shell find $(INCLUDE_DIR) -name '*.h') $(GENERATED_HEADERS)

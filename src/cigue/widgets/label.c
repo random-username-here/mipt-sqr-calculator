@@ -6,6 +6,10 @@
 #include "cigue/base.h"
 #include "cigue/tty.h"
 
+#ifdef CIGUE_GL
+#include "glcvs/font.h"
+#endif
+
 typedef struct {
   const char* str;
   // форматирование, ...
@@ -14,6 +18,13 @@ typedef struct {
 static void layout_and_draw(cigue_state* s, cigue_widget* label) {
 
   self_data* data = (self_data*) label->widget_data;
+
+  #ifdef CIGUE_GL
+  if (s->ctx) {
+    s->ctx->fill_color = CIGUE_TEXT;
+    glcvs_fill_text(s->ctx, (float) label->x, (float) (label->y + label->above_baseline), data->str);
+  } else
+  #endif
   cigue_tty_puts(label->x, label->y, data->str);
 }
 
@@ -27,6 +38,18 @@ void cigue_external_label(cigue_state* s, const char* text) {
   data->str = text;
   wgt->widget_data = data;
 
+
+  #ifdef CIGUE_GL
+  if (s->ctx) {
+    glcvs_text_mertics metrics = glcvs_get_text_metrics();
+    wgt->height = (int) (metrics.ascent + metrics.descent);
+    wgt->above_baseline = (int) metrics.ascent;
+    wgt->width = (int) glcvs_text_width(s->ctx, text);
+  }else {
+  #endif
+
+  wgt->height = 1;
+  wgt->above_baseline = 1;
   // https://stackoverflow.com/questions/32936646/getting-the-string-length-on-utf-8-in-c
   wgt->width = 0;
   int in_esc = 0;
@@ -40,8 +63,9 @@ void cigue_external_label(cigue_state* s, const char* text) {
       wgt->width += (*c & 0xC0) != 0x80 ? 1 : 0;
   }
 
-  wgt->height = 1;
-  wgt->above_baseline = 1;
+  #ifdef CIGUE_GL
+  }
+  #endif
 
   wgt->compute_dimensions = NULL;
   wgt->layout_and_draw = &layout_and_draw;

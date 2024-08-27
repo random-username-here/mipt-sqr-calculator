@@ -3,8 +3,17 @@
 #include "cigue/base.h"
 #include "cigue/tty.h"
 #include <assert.h>
+#ifdef CIGUE_GL
+#include "glcvs/drawing.h"
+#endif
 
 // Данный код служит иллюстрацией того, зачем нужны шаблоны.
+
+#define PAD_OUTER_X 0
+#define PAD_OUTER_Y 0
+#define PAD_INNER_X 15
+#define PAD_INNER_Y 7
+#define BORDER 1
 
 typedef struct { // TODO: null?
 } self_data;
@@ -15,9 +24,27 @@ typedef struct { // TODO: null?
 static void layout_and_draw(cigue_state* s, cigue_widget* self) {
 
   //self_data* data = (self_data*) self->widget_data;
+
+#ifdef CIGUE_GL
+  if (s->ctx) {
+    self->first_child->x = self->x + PAD_OUTER_X + PAD_INNER_X + BORDER;
+    self->first_child->y = self->y + PAD_OUTER_Y + PAD_INNER_Y + BORDER;
+
+    s->ctx->fill_color = CIGUE_BORDER;
+    glcvs_fill_rect(s->ctx,
+        self->x + PAD_OUTER_X, self->y + PAD_OUTER_Y,
+        self->width - PAD_OUTER_X*2, self->height - PAD_OUTER_Y*2);
+
+    s->ctx->fill_color = CIGUE_BACKGROUND_BORDERED;
+    glcvs_fill_rect(s->ctx,
+        self->x + PAD_OUTER_X + BORDER, self->y + PAD_OUTER_Y + BORDER,
+        self->width - PAD_OUTER_X*2 - BORDER*2, self->height - PAD_OUTER_Y*2 - BORDER*2);
+
+  } else {
+#endif
+
   self->first_child->x = self->x + 1;
   self->first_child->y = self->y + 1;
-
   cigue_tty_puts_anywhere(ESC_GRAY); // серый цвет
 
   // Ненавижу писать эту часть...
@@ -37,6 +64,10 @@ static void layout_and_draw(cigue_state* s, cigue_widget* self) {
   }
 
   cigue_tty_puts_anywhere(ESC_RESET);
+
+#ifdef CIGUE_GL
+  }
+#endif
 }
 
 static void compute_size(cigue_state* s, cigue_widget* self) {
@@ -48,9 +79,21 @@ static void compute_size(cigue_state* s, cigue_widget* self) {
 
   //self_data* data = (self_data*) self->widget_data;
 
+#ifdef CIGUE_GL
+  if (s->ctx) {
+    self->width = self->first_child->width + PAD_OUTER_X*2 + PAD_INNER_X*2 + BORDER;
+    self->height = self->first_child->height + PAD_OUTER_Y*2 + PAD_INNER_Y*2 + BORDER;
+    self->above_baseline = self->first_child->above_baseline + PAD_INNER_Y + PAD_OUTER_Y + BORDER;
+  } else {
+#endif
+
   self->width = self->first_child->width + 2;
   self->height = self->first_child->height + 2;
   self->above_baseline = self->first_child->above_baseline + 1;
+
+#ifdef CIGUE_GL
+  }
+#endif
 }
 
 void cigue_begin_border(cigue_state* s) {

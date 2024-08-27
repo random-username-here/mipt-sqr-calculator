@@ -177,15 +177,16 @@ def gen_cmap(
 
         chars.append(props)
 
-        if int(props['id']) == ord(notdef):
-            notdef_char_index = idx
     
     props_file.seek(0)
+
+    chars.sort(key = lambda v : int(v['id']))
+   
+    notdef_char_index = ([ idx for idx, i in enumerate(chars) if int(i['id']) == ord(notdef)] + [None])[0]
 
     if notdef_char_index is None:
         raise ValueError('Character to print for missing glyphs not found in cmap')
 
-    chars.sort(key = lambda v : int(v['id']))
 
     # -- Generate glyph table
 

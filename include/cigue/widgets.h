@@ -44,3 +44,5 @@ void cigue_begin_row(cigue_state* s, int spacing);
 /// Граница вокруг ОДНОГО виджета.
 /// Если виджет не один, то будет `assert(0)`.
 void cigue_begin_border(cigue_state* s);
+
+#define cigue_border(...) __cigue_autowidget(cigue_begin_border, __VA_ARGS__)
