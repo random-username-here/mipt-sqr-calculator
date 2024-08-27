@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdlib.h>
+#include <string.h>
 #include "istd/custom-str.h"
 
 char* i_strchr(char* str, char ch) {
@@ -117,4 +118,123 @@ char* i_strdup(const char* original) {
   return s;
 }
 
+// ---- strstr -------------------------------------------//
 
+char* i_strstr_dumb(char* haystack, const char* needle) {
+
+  assert(haystack);
+  assert(needle);
+
+  size_t len = i_strlen(haystack),
+         nlen = i_strlen(needle);
+
+  if (nlen > len)
+    return NULL;
+
+  for (size_t i = 0; i <= len-nlen; ++i)
+    if (!strncmp(haystack+i, needle, nlen))
+      return haystack+i;
+
+  return NULL;
+}
+
+typedef size_t hash_t;
+const hash_t hash_exp = 257;
+const hash_t hash_mod = (hash_t) (1e9+9);
+
+static hash_t mul_hash(hash_t a, hash_t b) {
+  long long unsigned rs = a % hash_mod;
+  rs *= (b % hash_mod);
+  rs %= hash_mod;
+  return rs;
+}
+
+static hash_t add_hash(hash_t a, hash_t b) {
+  return (a + b) % hash_mod;
+}
+
+static hash_t sub_hash(hash_t a, hash_t b) {
+  return add_hash(a, hash_mod - b);
+}
+
+char* i_strstr_rabin_karp(char* haystack, const char* needle) {
+
+  assert(haystack);
+  assert(needle);
+
+  size_t needle_len = i_strlen(needle),
+         haystack_len = i_strlen(haystack);
+
+  if (needle_len > haystack_len)
+    return NULL;
+
+  hash_t needle_hash = 0, right_factor = 1, left_factor = 1;
+  hash_t left_hash = 0, right_hash = 0;
+
+  for (size_t i = 0; i < needle_len; ++i) {
+    needle_hash = add_hash(needle_hash, mul_hash((unsigned char) needle[i], right_factor));
+    right_hash = add_hash(right_hash, mul_hash((unsigned char) haystack[i], right_factor));
+    right_factor = mul_hash(right_factor, hash_exp);
+  }
+
+  // After all this:
+  //  - needle_hash = hash(needle[0..needle_len])
+  //  - left_hash = hash(haystack[0..0]) = 0
+  //  - right_hash = hash(haystack[0..needle_len])
+  // To advanc
+  
+  for (size_t i = 0; i <= haystack_len - needle_len; ++i) {
+
+    // Check current substring
+    if (sub_hash(right_hash, left_hash) == mul_hash(left_factor, needle_hash)) {
+      if (!strncmp(haystack + i, needle, needle_len)) // There may be a collision 
+        return haystack + i;
+    }
+
+    // Advance hashes
+    right_hash = add_hash(right_hash, mul_hash((unsigned char) haystack[i+needle_len], right_factor));
+    right_factor = mul_hash(right_factor, hash_exp);
+
+    left_hash = add_hash(left_hash, mul_hash((unsigned char) haystack[i], left_factor));
+    left_factor = mul_hash(left_factor, hash_exp);
+  }
+
+  return NULL;
+}
+
+char* i_strstr_boyer_moore_horspool(char * haystack, const char* needle) {
+
+  const size_t OVERFLOWN = (size_t) -1;
+
+  size_t needle_len = (size_t) i_strlen(needle),
+      haystack_len = (size_t) i_strlen(haystack);
+
+  size_t last_location[256] = { 0 };
+
+  for (size_t i = 0; i < needle_len-1; ++i)
+    last_location[(unsigned char) needle[i]] = i+1;
+
+  for (size_t i = needle_len-1; i < haystack_len;) {
+
+    //                 v i
+    //   abeccacbadbabbad
+    //             abbqa
+    //                ^ mismatch_pos
+
+    size_t needle_start = i - (needle_len-1);
+
+    size_t mismatch_pos = needle_len-1;
+    while (mismatch_pos != OVERFLOWN && // We compared all the needle, no diffrence found
+           needle[mismatch_pos] == haystack[needle_start + mismatch_pos])
+      --mismatch_pos;
+
+    if (mismatch_pos == OVERFLOWN) // No mismatch found
+      return haystack + needle_start;
+
+    // else we have mismatched symbol at needle[mismatch_pos]
+    i += needle_len - last_location[(unsigned char) haystack[i]];
+
+  }
+
+  return NULL;
+}

@@ -1,6 +1,33 @@
 #include "istd/custom-str.h"
 #include "istd/mini-test.h"
 #include <stdlib.h>
+#include <assert.h>
+
+static void test_strstr(char* (*tested_strstr)(char*, const char*))  {
+
+  assert(tested_strstr);
+
+  char haystack[] = "abacabadaba";
+  
+  imini_test_assert_equal(
+      tested_strstr(haystack, "aba"), (char*) haystack,
+      "Strstr() should find substrings at the beginning of given string"
+  );
+
+  imini_test_assert_equal(
+      tested_strstr(haystack+1, "aba"), (char*) haystack + 4,
+      "Strstr() should find strings at the middle of the given string"
+  );
+  imini_test_assert_equal(
+      tested_strstr(haystack+7, "aba"), (char*) haystack + 8,
+      "Strstr() should find strings at the end of the given string"
+  );
+
+  imini_test_assert_equal(
+      tested_strstr(haystack, "db"), NULL,
+      "Strstr() should return NULL if nothing is found"
+  );
+}
 
 imini_test_case("Custom string.h") {
   
@@ -42,5 +69,17 @@ imini_test_case("Custom string.h") {
 
   imini_test_assert_str_equal(dup, buf2, "Strdup should copy given value");
 
-  free(dup);  
+  free(dup);
+
+  imini_test_header("Dumb strstr()");
+
+  test_strstr(&i_strstr_dumb);
+
+  imini_test_header("Rabin-Karp (hash-based) strstr()");
+
+  test_strstr(&i_strstr_rabin_karp);
+
+  imini_test_header("Boyer-Moore-Horspool strstr()");
+
+  test_strstr(&i_strstr_boyer_moore_horspool);
 }

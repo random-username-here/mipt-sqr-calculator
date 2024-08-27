@@ -49,4 +49,16 @@ void i_fgetsm(FILE* f, char** out, size_t original_size);
 /// \brief Clone given string
 char* i_strdup(const char* original);
 
+/// \brief Find first occurence of given substring inside the string. Dumb, `O(nm)` implementation.
+/// Returns NULL if nothing was found.
+char* i_strstr_dumb(char* haystack, const char* needle);
+
+/// \brief Find substring in string, Rabin-Karp algorithm.
+/// `O(n)` processing time if no collisions, `O(1)` memory.
+char* i_strstr_rabin_karp(char* haystack, const char* needle);
+
+/// \brief Find substring, Boyer-Moore-Horspool algorithm.
+char* i_strstr_boyer_moore_horspool(char * haystack, const char* needle);
+
+
 #endif
