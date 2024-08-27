@@ -152,7 +152,7 @@ extern jmp_buf _imini_test__jmpbuf_to_fail;
     long double: "%Lf", \
     /*_Bool: "%s",*/\
     void *: "%p",\
-    char *: "`%s`",\
+    char *: "`%1$s` (%1$p)",\
     default: "<value of unknowntype>%c" /* HACK: this prints extra space, so arg to imini_test_printf_escaped will be used */ \
   )
 
