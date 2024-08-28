@@ -130,7 +130,7 @@
   /// You can change it, if you want by defining your own
   /// value before including this file.
   ///  
-  #define ISTD_RLE_BEGIN_CHAR ((char) (0x42))
+  #define ISTD_RLE_BEGIN_CHAR ((char) (0x93))
 
 #endif
 

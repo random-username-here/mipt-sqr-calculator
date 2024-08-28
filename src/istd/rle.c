@@ -110,12 +110,13 @@ void istd_rle_encode(const void* void_buffer,
     if (repeat < MAKES_SENSE_TO_REPEAT) {
       for (size_t i = 0; i < repeat; ++i) {
         *(output++) = ch;
-        if (ch == ISTD_RLE_BEGIN_CHAR)
+        if (ch == (uint8_t) ISTD_RLE_BEGIN_CHAR)
           // Must escape that character
           *(output++) = (uint8_t) 0;
       }
     } else {
       // Repeated character
+      *(output++) = (uint8_t) ISTD_RLE_BEGIN_CHAR;
       output = vaint_encode(output, repeat);
       *(output++) = ch;
     }
@@ -140,9 +141,9 @@ size_t istd_rle_encoded_length(const void* void_buffer, size_t length) {
       ++pos, ++repeat;
 
     if (repeat < MAKES_SENSE_TO_REPEAT)
-      result += (ch == ISTD_RLE_BEGIN_CHAR ? 2 : 1) * repeat;
+      result += (ch == (uint8_t) ISTD_RLE_BEGIN_CHAR ? 2 : 1) * repeat;
     else 
-      result += vaint_encoded_len(repeat) + 1;
+      result += 1 + vaint_encoded_len(repeat) + 1;
   }
 
   return result;
@@ -161,13 +162,13 @@ int istd_rle_decode(const void* void_input,
   while (input < end) {
     uint8_t ch = *(input++);
 
-    if (ch != ISTD_RLE_BEGIN_CHAR) {
+    if (ch != (uint8_t) ISTD_RLE_BEGIN_CHAR) {
       *(buffer++) = ch;
     } else {
 
       if (*input == 0) {
         // Escaped RLE start character...
-        *(buffer++) = ISTD_RLE_BEGIN_CHAR;
+        *(buffer++) = (uint8_t) ISTD_RLE_BEGIN_CHAR;
         continue;
       }
 
@@ -187,6 +188,8 @@ int istd_rle_decode(const void* void_input,
         *(buffer++) = repeated;
     }
   }
+
+  return 0;
 }
 
 size_t istd_rle_decoded_length(const void* void_input, size_t length) {
@@ -201,19 +204,20 @@ size_t istd_rle_decoded_length(const void* void_input, size_t length) {
   while (input < end) {
     uint8_t ch = *(input++);
     
-    if (ch != ISTD_RLE_BEGIN_CHAR)
+    if (ch != (uint8_t) ISTD_RLE_BEGIN_CHAR)
       len += 1;
     else {
 
-      if (*input == ISTD_RLE_BEGIN_CHAR) {
+      if (*input == 0) { // Escaped begin char
         len += 1;
         continue;
       }
 
       size_t repeat = 0;
       input = vaint_decode(input, end, &repeat);
+      input++; // skip character to repeat
 
-      if (input == NULL)
+      if (input == NULL || input > end)
         return 0; // Bad data
 
       len += repeat;
