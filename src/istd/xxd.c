@@ -12,7 +12,10 @@
 #define BOLD "\x1b[1m"
 #define RESET "\x1b[0m"
 
-void istd_xxd(const void *ptr, const void *end) {
+// Number of spaces to pad to beginning of bytes column of the dump
+#define PAD_TO_FIRST_LINE "                       "
+
+void istd_xxd(const void *ptr, const void *end, const char* title) {
 
   assert(end > ptr);
 
@@ -22,18 +25,22 @@ void istd_xxd(const void *ptr, const void *end) {
   size_t real_len = len;
   if (len > PRINT_LEN) len = PRINT_LEN;
 
+  printf("\n");
+  if (title)
+    printf(PAD_TO_FIRST_LINE GRAY "╭─[ " RESET BOLD "%s" RESET GRAY " ]\n", title);
+
   // Hexdump it out
   for (uintptr_t base = begin / HEXDUMP_WIDTH * HEXDUMP_WIDTH;
         base < begin + len;
         base += HEXDUMP_WIDTH) {  
-    printf(GRAY "    %18p | " RESET, (void*) base);
+    printf(GRAY "    %18p │ " RESET, (void*) base);
   
     for (size_t col = 0; col < HEXDUMP_WIDTH; ++col) {
       if (base + col < begin || base + col >= begin+len) printf("   ");
       else printf("%02x ", (unsigned) *((unsigned char*) (base + col)));
     }
 
-    printf(GRAY " | " RESET);
+    printf(GRAY " │ " RESET);
     
     for (size_t col = 0; col < HEXDUMP_WIDTH; ++col) {
       if (base + col < begin || base + col >= begin+len) printf(" ");
@@ -43,12 +50,13 @@ void istd_xxd(const void *ptr, const void *end) {
         else printf(GRAY "." RESET);
       }
     }
-
-    printf("\n");
+    
+    printf(GRAY " │ " RESET "\n");
   }
   if (real_len > len) {
-    printf(GRAY "    ... and %zu bytes more ...\n" RESET, real_len - len);
+    printf(PAD_TO_FIRST_LINE GRAY "╰──▶ " RESET GREEN "and %zu bytes more ...\n" RESET, real_len - len);
   }
 
+  printf("\n");
 
 }
