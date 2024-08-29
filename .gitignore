@@ -60,4 +60,7 @@ build/*
 
 # Docs
 
-docs/*
+docs/dist/*
+
+# Sandbox
+sandbox/*
