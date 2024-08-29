@@ -80,10 +80,15 @@ int main (int argc, char** argv) {
         fprintf(stderr, "Congratulations, you got a corrupted archive!\n");
         exit(-1);
       }
+
+      fprintf(stderr, "Decompressed %zu bytes\n", out_len);
     } else {
       out_len = istd_rle_encoded_length(buf, len);
       output_data = (char*) calloc(out_len, 1);
       istd_rle_encode(buf, len, output_data);
+
+      fprintf(stderr, "%zu bytes in, %zu bytes out - compression factor of %f\n",
+              len, out_len, (double) len / (double) out_len);
     }
 
     fwrite(output_data, 1, out_len, output);
